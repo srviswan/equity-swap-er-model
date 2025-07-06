@@ -109,6 +109,51 @@ The model includes comprehensive support for cross-currency equity swaps:
 - **Multi-Currency Baskets**: Baskets with mixed currency exposures
 - **Currency Hedged Swaps**: Equity exposure with FX hedging components
 
+## Workflow and Operational Management
+
+The model includes comprehensive operational workflow capabilities for end-to-end automation:
+
+### Automated Workflow Management
+- **WorkflowDefinition**: Reusable workflow templates for business processes
+- **WorkflowInstance**: Individual workflow executions with status tracking
+- **WorkflowStep**: Granular step definitions with dependencies and configuration
+- **WorkflowTask**: Task-level execution tracking with assignment and results
+- **Process Types**: Trade booking, settlement processing, valuation, reconciliation
+- **SLA Management**: Timeout controls and priority-based processing
+
+### Exception Handling Framework
+- **Exception**: Centralized exception tracking with severity levels
+- **ExceptionRule**: Automated exception handling policies
+- **Auto-Retry Logic**: Configurable retry mechanisms for transient failures
+- **Escalation Workflows**: Time-based escalation to appropriate teams
+- **Status Tracking**: Complete lifecycle from identification to resolution
+- **Integration**: Seamless integration with workflow and STP systems
+
+### Straight-Through Processing (STP)
+- **STPRule**: Configurable eligibility criteria for automated processing
+- **STPStatus**: Real-time tracking of processing status and automation levels
+- **ProcessingRule**: Business logic definitions for automated decisions
+- **Tolerance Management**: Configurable thresholds for automated processing
+- **Manual Override**: Ability to bypass automation when needed
+- **Performance Metrics**: STP percentage tracking and bottleneck identification
+
+### Reconciliation Framework
+- **ReconciliationRun**: Scheduled reconciliation process execution
+- **ReconciliationBreak**: Individual break identification and tracking
+- **ReconciliationRule**: Matching criteria and tolerance definitions
+- **Multi-System Support**: Reconciliation across internal and external systems
+- **Break Classification**: Automated categorization of reconciliation differences
+- **Auto-Resolution**: Rules-based automatic resolution of minor breaks
+- **Aging Analysis**: Time-based tracking for SLA compliance
+
+### Operational Benefits
+- **End-to-End Automation**: Reduced manual intervention and operational risk
+- **Exception Management**: Proactive identification and resolution of issues
+- **Audit Trail**: Complete visibility into all operational processes
+- **Scalability**: Handle high-volume processing with minimal human oversight
+- **Compliance**: Built-in controls and reporting for regulatory requirements
+- **Integration Ready**: APIs and events for system integration
+
 ## Integration
 
 This ER model is designed to integrate with:

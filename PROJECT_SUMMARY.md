@@ -7,10 +7,13 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 ## Key Achievements
 
 ### 1. **Comprehensive ER Model Design**
-- **20 core entities** covering complete equity swap lifecycle
-- **4 equity swap types** supported: Price Return, Total Return, Variance, Volatility
-- **Cross-currency functionality** with FX rate management and reset mechanisms
-- **Complete FINOS CDM alignment** ensuring industry standard compliance
+- **32 Core Entities**: Complete representation of equity swap lifecycle and operations
+- **Cross-Currency Support**: Multi-currency settlements with FX rate management
+- **Operational Workflow**: End-to-end automation with workflow, exception, and STP management
+- **Reconciliation Framework**: Multi-system reconciliation with automated break resolution
+- **4 Swap Types**: Price Return, Total Return, Variance, and Volatility swaps
+- **Production-Ready**: Full PostgreSQL implementation with constraints and indexes
+- **FINOS CDM Compliant**: Industry standard alignment with Common Domain Model
 - **Production-ready architecture** with full referential integrity
 - **Flexible architecture** supporting single name, basket, and index underliers
 
@@ -40,6 +43,14 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 - **FX Reset Events**: Automated fixing and reset mechanisms
 - **Multi-Currency Settlements**: Support for different settlement currencies
 - **International Trade Support**: JPY/USD, EUR/USD, and other major pairs
+
+### 6. **Operational Workflow Management**
+- **Automated Workflows**: End-to-end business process automation and tracking
+- **Exception Handling**: Centralized exception management with retry and escalation
+- **Straight-Through Processing**: Configurable STP rules and automation levels
+- **Reconciliation Framework**: Multi-system reconciliation with break resolution
+- **Audit Trails**: Complete operational visibility and compliance tracking
+- **Performance Metrics**: SLA management and operational efficiency monitoring
 
 ## Technical Architecture
 
@@ -78,6 +89,26 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 8. **Audit & Compliance**
    - `DataQualityRule`: Data validation and business rules
    - `AuditLog`: Complete audit trail for regulatory compliance
+
+9. **Workflow Management**
+   - `WorkflowDefinition`: Reusable workflow templates
+   - `WorkflowInstance`: Individual workflow executions
+   - `WorkflowStep`: Step definitions with dependencies
+   - `WorkflowTask`: Task-level execution tracking
+
+10. **Exception Handling**
+    - `Exception`: Centralized exception tracking
+    - `ExceptionRule`: Automated handling policies
+
+11. **Straight-Through Processing**
+    - `STPRule`: Automated processing criteria
+    - `STPStatus`: Processing status tracking
+    - `ProcessingRule`: Business logic definitions
+
+12. **Reconciliation**
+    - `ReconciliationRun`: Reconciliation process execution
+    - `ReconciliationBreak`: Individual break tracking
+    - `ReconciliationRule`: Matching and tolerance rules
 
 ### Key Design Features
 
@@ -204,16 +235,22 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 ## Business Value
 
 ### Operational Efficiency
-- **Automated Processing**: Reduced manual intervention in trade lifecycle
-- **Standardized Data Model**: Consistent data across all systems
+- **End-to-End Automation**: Comprehensive workflow management reducing manual touch points
+- **Straight-Through Processing**: Configurable STP rules maximizing automation rates
+- **Exception-Based Management**: Proactive exception handling with automated resolution
+- **Standardized Data Model**: Consistent data across all systems and processes
 - **Real-Time Risk Management**: Up-to-date risk metrics and exposures
 - **Regulatory Readiness**: Built-in compliance and reporting capabilities
+- **Performance Optimization**: SLA management and bottleneck identification
 
 ### Risk Reduction
+- **Centralized Exception Management**: Systematic capture and resolution of operational issues
+- **Automated Reconciliation**: Multi-system reconciliation with break identification
 - **Data Quality Controls**: Reduced operational errors and data inconsistencies
 - **Comprehensive Audit Trail**: Enhanced regulatory examination readiness
 - **Standardized Processes**: Reduced process variation and operational risk
-- **Real-Time Monitoring**: Early warning systems for risk management
+- **Real-Time Monitoring**: Early warning systems for risk and operational management
+- **Escalation Management**: Time-based escalation ensuring timely issue resolution
 
 ### Competitive Advantage
 - **Industry Standard Compliance**: FINOS CDM alignment for interoperability
@@ -230,13 +267,14 @@ The comprehensive documentation, realistic examples, and production-ready SQL im
 ---
 
 **Project Statistics:**
-- **17 Core Entities** with full relationship mapping
-- **50+ Attributes** across all entity types
-- **25+ Relationships** with referential integrity
-- **100+ Business Rules** and validation constraints
-- **15+ Sample Data Records** demonstrating real-world scenarios
+- **32 Core Entities** with full relationship mapping including operational workflow
+- **80+ Attributes** across all entity types
+- **40+ Relationships** with referential integrity
+- **150+ Business Rules** and validation constraints
+- **50+ Sample Data Records** demonstrating real-world and operational scenarios
 - **4 Equity Swap Types** fully supported
-- **Complete Lifecycle Coverage** from execution to settlement
+- **Complete Lifecycle Coverage** from execution through settlement and reconciliation
+- **End-to-End Operations** including workflow, exception handling, and STP automation
 
 **Documentation Metrics:**
 - **5 Documentation Files** totaling 2,000+ lines

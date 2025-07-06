@@ -391,10 +391,267 @@ Party ||--o{ Collateral : "posting party"
 Party ||--o{ Collateral : "receiving party"
 
 ' Cross-Currency Relationships
-CurrencyPair ||--o{ FXRate : "rates for pair"
-Trade ||--o{ FXResetEvent : "fx resets"
-Payout ||--o{ FXResetEvent : "fx resets"
-FXRate ||--o{ FXResetEvent : "rate source"
+CurrencyPair ||--o{ FXRate : "has rates"
+FXResetEvent }o--|| Trade : "belongs to"
+FXResetEvent }o--|| Payout : "affects"
+FXResetEvent }o--|| FXRate : "uses rate"
+
+' ====================================================================================
+' WORKFLOW MANAGEMENT ENTITIES
+' ====================================================================================
+
+ENTITY(WorkflowDefinition, Workflow) {
+  PRIMARY_KEY(workflow_definition_id) : VARCHAR(50)
+  --
+  workflow_name : VARCHAR(100)
+  workflow_type : ENUM
+  workflow_version : VARCHAR(20)
+  description : TEXT
+  is_active : BOOLEAN
+  auto_start : BOOLEAN
+  timeout_hours : INTEGER
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+  modified_by : VARCHAR(50)
+  modified_date : TIMESTAMP
+}
+
+ENTITY(WorkflowInstance, Workflow) {
+  PRIMARY_KEY(workflow_instance_id) : VARCHAR(50)
+  --
+  workflow_definition_id : VARCHAR(50)
+  entity_type : VARCHAR(50)
+  entity_id : VARCHAR(50)
+  instance_status : ENUM
+  priority_level : INTEGER
+  started_date : TIMESTAMP
+  completed_date : TIMESTAMP
+  timeout_date : TIMESTAMP
+  error_message : TEXT
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+ENTITY(WorkflowStep, Workflow) {
+  PRIMARY_KEY(workflow_step_id) : VARCHAR(50)
+  --
+  workflow_definition_id : VARCHAR(50)
+  step_name : VARCHAR(100)
+  step_order : INTEGER
+  step_type : ENUM
+  is_mandatory : BOOLEAN
+  auto_execute : BOOLEAN
+  timeout_minutes : INTEGER
+  retry_count : INTEGER
+  prerequisite_steps : TEXT
+  configuration : TEXT
+  created_date : TIMESTAMP
+}
+
+ENTITY(WorkflowTask, Workflow) {
+  PRIMARY_KEY(workflow_task_id) : VARCHAR(50)
+  --
+  workflow_instance_id : VARCHAR(50)
+  workflow_step_id : VARCHAR(50)
+  task_status : ENUM
+  assigned_to : VARCHAR(50)
+  started_date : TIMESTAMP
+  completed_date : TIMESTAMP
+  retry_attempts : INTEGER
+  result_data : TEXT
+  error_details : TEXT
+  created_date : TIMESTAMP
+}
+
+' ====================================================================================
+' EXCEPTION HANDLING ENTITIES
+' ====================================================================================
+
+ENTITY(Exception, Exception) {
+  PRIMARY_KEY(exception_id) : VARCHAR(50)
+  --
+  exception_type : ENUM
+  severity_level : ENUM
+  entity_type : VARCHAR(50)
+  entity_id : VARCHAR(50)
+  exception_status : ENUM
+  exception_message : TEXT
+  exception_details : TEXT
+  workflow_instance_id : VARCHAR(50)
+  assigned_to : VARCHAR(50)
+  resolution_notes : TEXT
+  auto_retry : BOOLEAN
+  retry_count : INTEGER
+  max_retries : INTEGER
+  next_retry_date : TIMESTAMP
+  escalation_date : TIMESTAMP
+  resolved_date : TIMESTAMP
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+ENTITY(ExceptionRule, Exception) {
+  PRIMARY_KEY(exception_rule_id) : VARCHAR(50)
+  --
+  rule_name : VARCHAR(100)
+  exception_type : VARCHAR(50)
+  entity_type : VARCHAR(50)
+  severity_level : VARCHAR(10)
+  rule_condition : TEXT
+  action_type : ENUM
+  action_configuration : TEXT
+  retry_delay_minutes : INTEGER
+  escalation_delay_hours : INTEGER
+  notification_recipients : TEXT
+  is_active : BOOLEAN
+  created_date : TIMESTAMP
+}
+
+' ====================================================================================
+' STP (STRAIGHT-THROUGH PROCESSING) ENTITIES
+' ====================================================================================
+
+ENTITY(STPRule, Processing) {
+  PRIMARY_KEY(stp_rule_id) : VARCHAR(50)
+  --
+  rule_name : VARCHAR(100)
+  entity_type : VARCHAR(50)
+  rule_category : ENUM
+  rule_condition : TEXT
+  auto_process : BOOLEAN
+  bypass_manual_check : BOOLEAN
+  processing_priority : INTEGER
+  tolerance_thresholds : TEXT
+  business_hours_only : BOOLEAN
+  is_active : BOOLEAN
+  created_date : TIMESTAMP
+}
+
+ENTITY(STPStatus, Processing) {
+  PRIMARY_KEY(stp_status_id) : VARCHAR(50)
+  --
+  entity_type : VARCHAR(50)
+  entity_id : VARCHAR(50)
+  stp_eligible : BOOLEAN
+  eligibility_reason : TEXT
+  processing_status : ENUM
+  stp_percentage : DECIMAL(5,2)
+  manual_steps_required : TEXT
+  processing_started_date : TIMESTAMP
+  processing_completed_date : TIMESTAMP
+  workflow_instance_id : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+ENTITY(ProcessingRule, Processing) {
+  PRIMARY_KEY(processing_rule_id) : VARCHAR(50)
+  --
+  rule_name : VARCHAR(100)
+  rule_type : ENUM
+  entity_type : VARCHAR(50)
+  rule_expression : TEXT
+  action_configuration : TEXT
+  execution_order : INTEGER
+  is_blocking : BOOLEAN
+  error_handling : ENUM
+  is_active : BOOLEAN
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+' ====================================================================================
+' RECONCILIATION ENTITIES
+' ====================================================================================
+
+ENTITY(ReconciliationRun, Reconciliation) {
+  PRIMARY_KEY(recon_run_id) : VARCHAR(50)
+  --
+  recon_type : ENUM
+  recon_frequency : ENUM
+  business_date : DATE
+  run_status : ENUM
+  source_system : VARCHAR(50)
+  target_system : VARCHAR(50)
+  total_records_processed : INTEGER
+  matched_records : INTEGER
+  unmatched_records : INTEGER
+  breaks_identified : INTEGER
+  tolerance_amount : DECIMAL(18,2)
+  started_date : TIMESTAMP
+  completed_date : TIMESTAMP
+  run_duration_seconds : INTEGER
+  configuration : TEXT
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+ENTITY(ReconciliationBreak, Reconciliation) {
+  PRIMARY_KEY(recon_break_id) : VARCHAR(50)
+  --
+  recon_run_id : VARCHAR(50)
+  break_type : ENUM
+  entity_type : VARCHAR(50)
+  entity_id : VARCHAR(50)
+  break_status : ENUM
+  break_amount : DECIMAL(18,2)
+  break_currency : CHAR(3)
+  source_value : TEXT
+  target_value : TEXT
+  break_description : TEXT
+  investigation_notes : TEXT
+  resolution_action : TEXT
+  assigned_to : VARCHAR(50)
+  age_in_days : INTEGER
+  resolved_date : TIMESTAMP
+  exception_id : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+ENTITY(ReconciliationRule, Reconciliation) {
+  PRIMARY_KEY(recon_rule_id) : VARCHAR(50)
+  --
+  rule_name : VARCHAR(100)
+  recon_type : VARCHAR(30)
+  matching_criteria : TEXT
+  tolerance_rules : TEXT
+  break_classification : TEXT
+  auto_resolution_rules : TEXT
+  priority_order : INTEGER
+  is_active : BOOLEAN
+  effective_date : DATE
+  expiry_date : DATE
+  created_by : VARCHAR(50)
+  created_date : TIMESTAMP
+}
+
+' ====================================================================================
+' WORKFLOW AND OPERATIONAL RELATIONSHIPS
+' ====================================================================================
+
+' Workflow Relationships
+WorkflowDefinition ||--o{ WorkflowInstance : "creates instances"
+WorkflowDefinition ||--o{ WorkflowStep : "defines steps"
+WorkflowInstance ||--o{ WorkflowTask : "executes tasks"
+WorkflowStep ||--o{ WorkflowTask : "task instances"
+WorkflowInstance ||--o{ Exception : "may create"
+
+' Exception Relationships
+Exception }o--|| WorkflowInstance : "may relate to"
+ReconciliationBreak }o--|| Exception : "may create"
+
+' STP Relationships
+STPStatus }o--|| WorkflowInstance : "tracks processing"
+
+' Reconciliation Relationships
+ReconciliationRun ||--o{ ReconciliationBreak : "identifies breaks"
+
+' Entity Processing Relationships
+Trade ||--o{ WorkflowInstance : "triggers workflows"
+Trade ||--o{ STPStatus : "has STP status"
+Trade ||--o{ Exception : "may have exceptions"
+Settlement ||--o{ WorkflowInstance : "triggers workflows"
+Settlement ||--o{ Exception : "may have exceptions"
+Valuation ||--o{ ReconciliationBreak : "reconciliation breaks"
 
 ' =============================================================================
 ' LEGEND AND NOTES

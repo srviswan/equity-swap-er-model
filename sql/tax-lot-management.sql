@@ -8,7 +8,7 @@ CREATE TABLE TaxLot (
     trade_id VARCHAR(50) NOT NULL,
     lot_number INTEGER NOT NULL,
     
-    -- Position details
+    -- Position detailsd
     original_notional DECIMAL(18,2) NOT NULL CHECK (original_notional > 0),
     current_notional DECIMAL(18,2) NOT NULL CHECK (current_notional >= 0),
     original_shares DECIMAL(18,6),

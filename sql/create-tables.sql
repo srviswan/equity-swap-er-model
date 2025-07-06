@@ -502,6 +502,92 @@ CREATE INDEX idx_fx_reset_trade ON FXResetEvent(trade_id);
 CREATE INDEX idx_fx_reset_date ON FXResetEvent(reset_date);
 CREATE INDEX idx_fx_reset_currencies ON FXResetEvent(base_currency, quote_currency);
 
+-- Index on FX Reset Event foreign keys and dates
+CREATE INDEX idx_fxresetevent_trade_payout ON FXResetEvent(trade_id, payout_id);
+CREATE INDEX idx_fxresetevent_reset_date ON FXResetEvent(reset_date, reset_status);
+CREATE INDEX idx_fxresetevent_currency_pair ON FXResetEvent(base_currency, quote_currency);
+
+-- =============================================================================
+-- WORKFLOW MANAGEMENT INDEXES
+-- =============================================================================
+
+-- Workflow Definition indexes
+CREATE INDEX idx_workflowdefinition_type_active ON WorkflowDefinition(workflow_type, is_active);
+CREATE INDEX idx_workflowdefinition_name ON WorkflowDefinition(workflow_name);
+
+-- Workflow Instance indexes
+CREATE INDEX idx_workflowinstance_definition ON WorkflowInstance(workflow_definition_id);
+CREATE INDEX idx_workflowinstance_entity ON WorkflowInstance(entity_type, entity_id);
+CREATE INDEX idx_workflowinstance_status ON WorkflowInstance(instance_status, priority_level);
+CREATE INDEX idx_workflowinstance_dates ON WorkflowInstance(created_date, completed_date);
+
+-- Workflow Step indexes
+CREATE INDEX idx_workflowstep_definition ON WorkflowStep(workflow_definition_id, step_order);
+CREATE INDEX idx_workflowstep_type ON WorkflowStep(step_type, auto_execute);
+
+-- Workflow Task indexes
+CREATE INDEX idx_workflowtask_instance ON WorkflowTask(workflow_instance_id, task_status);
+CREATE INDEX idx_workflowtask_step ON WorkflowTask(workflow_step_id);
+CREATE INDEX idx_workflowtask_assigned ON WorkflowTask(assigned_to, task_status);
+CREATE INDEX idx_workflowtask_dates ON WorkflowTask(created_date, completed_date);
+
+-- =============================================================================
+-- EXCEPTION HANDLING INDEXES
+-- =============================================================================
+
+-- Exception indexes
+CREATE INDEX idx_exception_type_severity ON Exception(exception_type, severity_level);
+CREATE INDEX idx_exception_entity ON Exception(entity_type, entity_id);
+CREATE INDEX idx_exception_status ON Exception(exception_status, assigned_to);
+CREATE INDEX idx_exception_workflow ON Exception(workflow_instance_id);
+CREATE INDEX idx_exception_dates ON Exception(created_date, escalation_date, resolved_date);
+CREATE INDEX idx_exception_retry ON Exception(auto_retry, next_retry_date);
+
+-- Exception Rule indexes
+CREATE INDEX idx_exceptionrule_type ON ExceptionRule(exception_type, is_active);
+CREATE INDEX idx_exceptionrule_entity ON ExceptionRule(entity_type, severity_level);
+
+-- =============================================================================
+-- STP (STRAIGHT-THROUGH PROCESSING) INDEXES
+-- =============================================================================
+
+-- STP Rule indexes
+CREATE INDEX idx_stprule_entity_category ON STPRule(entity_type, rule_category, is_active);
+CREATE INDEX idx_stprule_priority ON STPRule(processing_priority, auto_process);
+
+-- STP Status indexes
+CREATE INDEX idx_stpstatus_entity ON STPStatus(entity_type, entity_id);
+CREATE INDEX idx_stpstatus_eligible ON STPStatus(stp_eligible, processing_status);
+CREATE INDEX idx_stpstatus_workflow ON STPStatus(workflow_instance_id);
+CREATE INDEX idx_stpstatus_dates ON STPStatus(processing_started_date, processing_completed_date);
+
+-- Processing Rule indexes
+CREATE INDEX idx_processingrule_entity_type ON ProcessingRule(entity_type, rule_type, is_active);
+CREATE INDEX idx_processingrule_order ON ProcessingRule(execution_order, is_blocking);
+
+-- =============================================================================
+-- RECONCILIATION INDEXES
+-- =============================================================================
+
+-- Reconciliation Run indexes
+CREATE INDEX idx_reconrun_type_frequency ON ReconciliationRun(recon_type, recon_frequency);
+CREATE INDEX idx_reconrun_business_date ON ReconciliationRun(business_date, run_status);
+CREATE INDEX idx_reconrun_systems ON ReconciliationRun(source_system, target_system);
+CREATE INDEX idx_reconrun_dates ON ReconciliationRun(created_date, completed_date);
+
+-- Reconciliation Break indexes
+CREATE INDEX idx_reconbreak_run ON ReconciliationBreak(recon_run_id, break_status);
+CREATE INDEX idx_reconbreak_entity ON ReconciliationBreak(entity_type, entity_id);
+CREATE INDEX idx_reconbreak_type ON ReconciliationBreak(break_type, break_status);
+CREATE INDEX idx_reconbreak_assigned ON ReconciliationBreak(assigned_to, break_status);
+CREATE INDEX idx_reconbreak_age ON ReconciliationBreak(age_in_days, break_status);
+CREATE INDEX idx_reconbreak_exception ON ReconciliationBreak(exception_id);
+
+-- Reconciliation Rule indexes
+CREATE INDEX idx_reconrule_type ON ReconciliationRule(recon_type, is_active);
+CREATE INDEX idx_reconrule_priority ON ReconciliationRule(priority_order, effective_date);
+CREATE INDEX idx_reconrule_dates ON ReconciliationRule(effective_date, expiry_date);
+
 -- Audit indexes
 CREATE INDEX idx_audit_table_record ON AuditLog(table_name, record_id);
 CREATE INDEX idx_audit_timestamp ON AuditLog(change_timestamp);

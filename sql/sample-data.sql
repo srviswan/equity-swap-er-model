@@ -197,6 +197,96 @@ INSERT INTO FXResetEvent (fx_reset_id, trade_id, payout_id, reset_date, reset_ti
 ('FX-RST-003', 'EQS-APPL-001', 'EQUITY-LEG-001', '2024-07-15', '16:00:00', 'EUR', 'USD', 1.0820, 'WM/Reuters', 'PERIODIC', 'PENDING', '2024-07-17', '2024-07-15');
 
 -- =============================================================================
+-- WORKFLOW MANAGEMENT SAMPLE DATA
+-- =============================================================================
+
+-- Workflow Definition Sample Data
+INSERT INTO WorkflowDefinition (workflow_definition_id, workflow_name, workflow_type, workflow_version, description, is_active, auto_start, timeout_hours, created_by, created_date) VALUES
+('WF-TRADE-BOOKING-001', 'Equity Swap Trade Booking', 'TRADE_BOOKING', '1.0', 'Complete trade booking workflow from capture to confirmation', TRUE, TRUE, 4, 'system', '2024-01-01'),
+('WF-SETTLEMENT-001', 'Settlement Processing', 'SETTLEMENT_PROCESS', '1.0', 'End-to-end settlement processing workflow', TRUE, FALSE, 24, 'system', '2024-01-01'),
+('WF-VALUATION-001', 'Daily Valuation Process', 'VALUATION_PROCESS', '1.0', 'Daily mark-to-market valuation workflow', TRUE, TRUE, 6, 'system', '2024-01-01'),
+('WF-RECON-DAILY-001', 'Daily Trade Reconciliation', 'RECONCILIATION_PROCESS', '1.0', 'Daily trade reconciliation with external systems', TRUE, TRUE, 8, 'system', '2024-01-01');
+
+-- Workflow Step Sample Data
+INSERT INTO WorkflowStep (workflow_step_id, workflow_definition_id, step_name, step_order, step_type, is_mandatory, auto_execute, timeout_minutes, retry_count, prerequisite_steps, configuration, created_date) VALUES
+('WS-TRADE-001', 'WF-TRADE-BOOKING-001', 'Trade Validation', 1, 'VALIDATION', TRUE, TRUE, 5, 3, '[]', '{"validation_rules": ["mandatory_fields", "business_rules"]}', '2024-01-01'),
+('WS-TRADE-002', 'WF-TRADE-BOOKING-001', 'Trade Enrichment', 2, 'ENRICHMENT', TRUE, TRUE, 10, 2, '["WS-TRADE-001"]', '{"data_sources": ["market_data", "reference_data"]}', '2024-01-01'),
+('WS-TRADE-003', 'WF-TRADE-BOOKING-001', 'Risk Approval', 3, 'APPROVAL', TRUE, FALSE, 120, 0, '["WS-TRADE-002"]', '{"approval_threshold": 10000000}', '2024-01-01'),
+('WS-TRADE-004', 'WF-TRADE-BOOKING-001', 'Trade Confirmation', 4, 'NOTIFICATION', TRUE, TRUE, 15, 1, '["WS-TRADE-003"]', '{"notification_channels": ["email", "system"]}', '2024-01-01');
+
+-- Workflow Instance Sample Data
+INSERT INTO WorkflowInstance (workflow_instance_id, workflow_definition_id, entity_type, entity_id, instance_status, priority_level, started_date, completed_date, created_by, created_date) VALUES
+('WI-001', 'WF-TRADE-BOOKING-001', 'TRADE', 'EQS-APPL-001', 'COMPLETED', 3, '2024-01-15 09:00:00', '2024-01-15 09:45:00', 'trader1', '2024-01-15 09:00:00'),
+('WI-002', 'WF-TRADE-BOOKING-001', 'TRADE', 'EQS-NIKKEI-001', 'IN_PROGRESS', 2, '2024-01-15 10:30:00', NULL, 'trader2', '2024-01-15 10:30:00'),
+('WI-003', 'WF-SETTLEMENT-001', 'SETTLEMENT', 'SETTLE-001', 'COMPLETED', 3, '2024-01-17 08:00:00', '2024-01-17 16:30:00', 'system', '2024-01-17 08:00:00');
+
+-- Workflow Task Sample Data
+INSERT INTO WorkflowTask (workflow_task_id, workflow_instance_id, workflow_step_id, task_status, assigned_to, started_date, completed_date, retry_attempts, result_data, created_date) VALUES
+('WT-001', 'WI-001', 'WS-TRADE-001', 'COMPLETED', 'system', '2024-01-15 09:00:00', '2024-01-15 09:05:00', 0, '{"validation_result": "PASSED"}', '2024-01-15 09:00:00'),
+('WT-002', 'WI-001', 'WS-TRADE-002', 'COMPLETED', 'system', '2024-01-15 09:05:00', '2024-01-15 09:15:00', 0, '{"enrichment_status": "COMPLETED"}', '2024-01-15 09:05:00'),
+('WT-003', 'WI-001', 'WS-TRADE-003', 'COMPLETED', 'risk_manager1', '2024-01-15 09:15:00', '2024-01-15 09:30:00', 0, '{"approval_status": "APPROVED"}', '2024-01-15 09:15:00'),
+('WT-004', 'WI-002', 'WS-TRADE-001', 'IN_PROGRESS', 'system', '2024-01-15 10:30:00', NULL, 1, NULL, '2024-01-15 10:30:00');
+
+-- =============================================================================
+-- EXCEPTION HANDLING SAMPLE DATA
+-- =============================================================================
+
+-- Exception Rule Sample Data
+INSERT INTO ExceptionRule (exception_rule_id, rule_name, exception_type, entity_type, severity_level, rule_condition, action_type, action_configuration, retry_delay_minutes, escalation_delay_hours, notification_recipients, is_active, created_date) VALUES
+('ER-001', 'Auto Retry Validation Errors', 'VALIDATION_ERROR', 'TRADE', 'LOW', '{"max_amount": 1000000}', 'AUTO_RETRY', '{"max_retries": 3}', 5, 2, '["support@example.com"]', TRUE, '2024-01-01'),
+('ER-002', 'Escalate Settlement Failures', 'SETTLEMENT_FAIL', 'SETTLEMENT', 'HIGH', '{}', 'ESCALATE', '{"escalation_level": "MANAGER"}', 0, 1, '["settlement.team@example.com", "manager@example.com"]', TRUE, '2024-01-01'),
+('ER-003', 'Critical System Errors', 'SYSTEM_ERROR', 'ANY', 'CRITICAL', '{}', 'NOTIFY', '{"immediate_notification": true}', 0, 0, '["support@example.com", "ops.manager@example.com"]', TRUE, '2024-01-01');
+
+-- Exception Sample Data
+INSERT INTO Exception (exception_id, exception_type, severity_level, entity_type, entity_id, exception_status, exception_message, exception_details, workflow_instance_id, assigned_to, auto_retry, retry_count, max_retries, next_retry_date, created_by, created_date) VALUES
+('EX-001', 'VALIDATION_ERROR', 'LOW', 'TRADE', 'EQS-APPL-002', 'RESOLVED', 'Missing counterparty information', '{"field": "counterparty_id", "validation_rule": "mandatory_field"}', 'WI-004', 'trader1', TRUE, 2, 3, NULL, 'system', '2024-01-15 11:00:00'),
+('EX-002', 'SETTLEMENT_FAIL', 'HIGH', 'SETTLEMENT', 'SETTLE-002', 'IN_PROGRESS', 'Insufficient cash balance', '{"required_amount": 1000000, "available_amount": 750000}', NULL, 'settlement_team', FALSE, 0, 0, NULL, 'system', '2024-01-17 09:30:00'),
+('EX-003', 'RECON_BREAK', 'MEDIUM', 'VALUATION', 'VAL001', 'NEW', 'Valuation amount mismatch', '{"internal_value": 5000000, "external_value": 4995000, "difference": 5000}', NULL, NULL, FALSE, 0, 0, NULL, 'system', '2024-01-16 18:00:00');
+
+-- =============================================================================
+-- STP (STRAIGHT-THROUGH PROCESSING) SAMPLE DATA
+-- =============================================================================
+
+-- STP Rule Sample Data
+INSERT INTO STPRule (stp_rule_id, rule_name, entity_type, rule_category, rule_condition, auto_process, bypass_manual_check, processing_priority, tolerance_thresholds, business_hours_only, is_active, created_date) VALUES
+('STP-001', 'Small Trade Auto-Processing', 'TRADE', 'VALIDATION', '{"trade_amount": {"max": 1000000}, "counterparty_rating": {"min": "A"}}', TRUE, FALSE, 1, '{"amount_tolerance": 1000}', TRUE, TRUE, '2024-01-01'),
+('STP-002', 'Standard Settlement STP', 'SETTLEMENT', 'SETTLEMENT', '{"settlement_amount": {"max": 5000000}, "currency": ["USD", "EUR"]}', TRUE, TRUE, 2, '{"amount_tolerance": 100}', FALSE, TRUE, '2024-01-01'),
+('STP-003', 'Daily Valuation STP', 'VALUATION', 'APPROVAL', '{"valuation_source": ["BLOOMBERG", "REUTERS"]}', TRUE, FALSE, 3, '{"price_tolerance": 0.01}', TRUE, TRUE, '2024-01-01');
+
+-- STP Status Sample Data
+INSERT INTO STPStatus (stp_status_id, entity_type, entity_id, stp_eligible, eligibility_reason, processing_status, stp_percentage, manual_steps_required, processing_started_date, processing_completed_date, workflow_instance_id, created_date) VALUES
+('STP-STATUS-001', 'TRADE', 'EQS-APPL-001', TRUE, 'Meets all STP criteria', 'COMPLETED', 100.00, '[]', '2024-01-15 09:00:00', '2024-01-15 09:45:00', 'WI-001', '2024-01-15 09:00:00'),
+('STP-STATUS-002', 'TRADE', 'EQS-NIKKEI-001', FALSE, 'High amount requires manual approval', 'MANUAL_REVIEW', 60.00, '["risk_approval", "compliance_check"]', '2024-01-15 10:30:00', NULL, 'WI-002', '2024-01-15 10:30:00'),
+('STP-STATUS-003', 'SETTLEMENT', 'SETTLE-001', TRUE, 'Standard settlement criteria met', 'COMPLETED', 95.00, '["final_confirmation"]', '2024-01-17 08:00:00', '2024-01-17 16:30:00', 'WI-003', '2024-01-17 08:00:00');
+
+-- Processing Rule Sample Data
+INSERT INTO ProcessingRule (processing_rule_id, rule_name, rule_type, entity_type, rule_expression, action_configuration, execution_order, is_blocking, error_handling, is_active, created_by, created_date) VALUES
+('PR-001', 'Trade Amount Validation', 'VALIDATION', 'TRADE', 'trade_amount > 0 AND trade_amount < 100000000', '{"error_message": "Trade amount must be positive and less than 100M"}', 1, TRUE, 'EXCEPTION', TRUE, 'system', '2024-01-01'),
+('PR-002', 'Counterparty Enrichment', 'ENRICHMENT', 'TRADE', 'counterparty_id IS NOT NULL', '{"data_source": "COUNTERPARTY_MASTER", "fields": ["credit_rating", "jurisdiction"]}', 2, FALSE, 'WARNING', TRUE, 'system', '2024-01-01'),
+('PR-003', 'Settlement Date Validation', 'VALIDATION', 'SETTLEMENT', 'settlement_date >= trade_date + 2', '{"business_rule": "T+2_SETTLEMENT"}', 1, TRUE, 'EXCEPTION', TRUE, 'system', '2024-01-01');
+
+-- =============================================================================
+-- RECONCILIATION SAMPLE DATA
+-- =============================================================================
+
+-- Reconciliation Rule Sample Data
+INSERT INTO ReconciliationRule (recon_rule_id, rule_name, recon_type, matching_criteria, tolerance_rules, break_classification, auto_resolution_rules, priority_order, is_active, effective_date, created_by, created_date) VALUES
+('RR-001', 'Trade Matching Rule', 'TRADE_RECON', '{"match_fields": ["trade_id", "trade_date", "counterparty_id"]}', '{"amount_tolerance": 100, "date_tolerance_days": 0}', '{"amount_diff": "AMOUNT_DIFFERENCE", "missing": "MISSING_TRADE"}', '{"auto_resolve_threshold": 50}', 1, TRUE, '2024-01-01', 'system', '2024-01-01'),
+('RR-002', 'Position Matching Rule', 'POSITION_RECON', '{"match_fields": ["underlier_id", "position_date", "party_id"]}', '{"quantity_tolerance": 10, "amount_tolerance": 1000}', '{"quantity_diff": "QUANTITY_DIFFERENCE", "amount_diff": "AMOUNT_DIFFERENCE"}', '{"auto_resolve_threshold": 100}', 1, TRUE, '2024-01-01', 'system', '2024-01-01');
+
+-- Reconciliation Run Sample Data
+INSERT INTO ReconciliationRun (recon_run_id, recon_type, recon_frequency, business_date, run_status, source_system, target_system, total_records_processed, matched_records, unmatched_records, breaks_identified, tolerance_amount, started_date, completed_date, run_duration_seconds, configuration, created_by, created_date) VALUES
+('RR-RUN-001', 'TRADE_RECON', 'DAILY', '2024-01-15', 'COMPLETED', 'INTERNAL_SYSTEM', 'COUNTERPARTY_SYSTEM', 150, 148, 2, 2, 100.00, '2024-01-16 06:00:00', '2024-01-16 06:45:00', 2700, '{"tolerance_override": false}', 'recon_service', '2024-01-16 06:00:00'),
+('RR-RUN-002', 'POSITION_RECON', 'DAILY', '2024-01-15', 'COMPLETED', 'INTERNAL_SYSTEM', 'PRIME_BROKER', 75, 73, 2, 3, 1000.00, '2024-01-16 07:00:00', '2024-01-16 07:30:00', 1800, '{"tolerance_override": false}', 'recon_service', '2024-01-16 07:00:00'),
+('RR-RUN-003', 'CASH_RECON', 'DAILY', '2024-01-16', 'RUNNING', 'INTERNAL_SYSTEM', 'SETTLEMENT_BANK', 0, 0, 0, 0, 10.00, '2024-01-17 06:00:00', NULL, NULL, '{"tolerance_override": false}', 'recon_service', '2024-01-17 06:00:00');
+
+-- Reconciliation Break Sample Data
+INSERT INTO ReconciliationBreak (recon_break_id, recon_run_id, break_type, entity_type, entity_id, break_status, break_amount, break_currency, source_value, target_value, break_description, investigation_notes, assigned_to, exception_id, created_date) VALUES
+('RB-001', 'RR-RUN-001', 'AMOUNT_DIFFERENCE', 'TRADE', 'EQS-APPL-001', 'INVESTIGATING', 5000.00, 'USD', '5000000.00', '4995000.00', 'Trade amount difference between internal and counterparty systems', 'Checking trade amendments and settlement instructions', 'recon_analyst1', 'EX-003', '2024-01-16 06:30:00'),
+('RB-002', 'RR-RUN-001', 'MISSING_TRADE', 'TRADE', 'EQS-MISSING-001', 'OPEN', NULL, NULL, 'EXISTS', 'NOT_FOUND', 'Trade found in internal system but missing from counterparty system', NULL, 'recon_analyst1', NULL, '2024-01-16 06:35:00'),
+('RB-003', 'RR-RUN-002', 'QUANTITY_DIFFERENCE', 'POSITION', 'POS-AAPL-001', 'EXPLAINED', NULL, NULL, '1000', '1010', 'Position quantity difference due to corporate action', 'Corporate action (stock dividend) processed correctly, break resolved', 'recon_analyst2', NULL, '2024-01-16 07:15:00');
+
+-- =============================================================================
 -- SETTLEMENTS
 -- =============================================================================
 

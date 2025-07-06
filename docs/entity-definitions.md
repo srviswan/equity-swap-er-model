@@ -365,6 +365,299 @@ Tracks FX rate reset/fixing events for cross-currency payouts.
 - Payment date determines when the fixed rate is applied
 - Supports multiple reset types for different scenarios
 
+### WorkflowDefinition
+
+Defines reusable workflow templates for automated business processes.
+
+**Primary Key**: `workflow_definition_id`
+
+**Key Attributes**:
+- `workflow_name` - Human-readable workflow name
+- `workflow_type` - Type (TRADE_BOOKING, SETTLEMENT_PROCESS, VALUATION_PROCESS, etc.)
+- `workflow_version` - Version for template management
+- `description` - Detailed workflow description
+- `is_active` - Whether workflow is currently active
+- `auto_start` - Whether workflow starts automatically
+- `timeout_hours` - Maximum execution time allowed
+- `created_by` / `modified_by` - Audit trail
+
+**Business Rules:**
+- Only active workflows can be instantiated
+- Version management allows workflow evolution
+- Timeout enforces SLA compliance
+- Auto-start enables lights-out processing
+- Supports multiple concurrent versions
+
+### WorkflowInstance
+
+Tracks individual executions of workflow definitions.
+
+**Primary Key**: `workflow_instance_id`
+
+**Key Attributes**:
+- `workflow_definition_id` - Template reference
+- `entity_type` / `entity_id` - Associated business entity
+- `instance_status` - Current status (PENDING, RUNNING, COMPLETED, FAILED, CANCELLED)
+- `priority_level` - Processing priority (1=highest, 5=lowest)
+- `started_date` / `completed_date` - Execution timeline
+- `timeout_date` - When instance will timeout
+- `error_message` - Failure details if applicable
+
+**Business Rules:**
+- Each instance tied to specific business entity
+- Status transitions follow predefined lifecycle
+- Priority affects processing order
+- Timeout management prevents hung processes
+- Error tracking for exception handling
+
+### WorkflowStep
+
+Defines individual steps within workflow definitions.
+
+**Primary Key**: `workflow_step_id`
+
+**Key Attributes**:
+- `workflow_definition_id` - Parent workflow
+- `step_name` - Human-readable step name
+- `step_order` - Execution sequence
+- `step_type` - Type (VALIDATION, ENRICHMENT, APPROVAL, NOTIFICATION, etc.)
+- `is_mandatory` - Whether step can be skipped
+- `auto_execute` - Whether manual intervention required
+- `timeout_minutes` - Step-level timeout
+- `retry_count` - Maximum retry attempts
+- `prerequisite_steps` - Dependencies (JSON array)
+- `configuration` - Step-specific settings (JSON)
+
+**Business Rules:**
+- Steps execute in defined order
+- Prerequisites must complete before step starts
+- Retry logic handles transient failures
+- Mandatory steps cannot be bypassed
+- Configuration allows step customization
+
+### WorkflowTask
+
+Tracks execution of individual workflow steps.
+
+**Primary Key**: `workflow_task_id`
+
+**Key Attributes**:
+- `workflow_instance_id` / `workflow_step_id` - Parent references
+- `task_status` - Current status (PENDING, RUNNING, COMPLETED, FAILED, SKIPPED)
+- `assigned_to` - User or system responsible
+- `started_date` / `completed_date` - Execution timeline
+- `retry_attempts` - Number of retries performed
+- `result_data` - Task output (JSON)
+- `error_details` - Failure information
+
+**Business Rules:**
+- Task lifecycle tied to step definition
+- Assignment enables workload distribution
+- Result data passed to subsequent steps
+- Retry tracking for reliability
+- Error details support debugging
+
+### Exception
+
+Centralized exception tracking and management.
+
+**Primary Key**: `exception_id`
+
+**Key Attributes**:
+- `exception_type` - Classification (VALIDATION_ERROR, SETTLEMENT_FAIL, SYSTEM_ERROR, etc.)
+- `severity_level` - Impact level (LOW, MEDIUM, HIGH, CRITICAL)
+- `entity_type` / `entity_id` - Associated business entity
+- `exception_status` - Current status (NEW, IN_PROGRESS, RESOLVED, ESCALATED)
+- `exception_message` - Human-readable description
+- `exception_details` - Technical details (JSON)
+- `workflow_instance_id` - Related workflow if applicable
+- `assigned_to` - Person/team handling exception
+- `auto_retry` - Whether automatic retry enabled
+- `retry_count` / `max_retries` - Retry management
+- `escalation_date` / `resolved_date` - Timeline tracking
+
+**Business Rules:**
+- Severity determines handling priority
+- Auto-retry for transient issues
+- Escalation ensures timely resolution
+- Status tracking enables reporting
+- Association with entities and workflows
+
+### ExceptionRule
+
+Defines automated exception handling policies.
+
+**Primary Key**: `exception_rule_id`
+
+**Key Attributes**:
+- `rule_name` - Human-readable rule name
+- `exception_type` / `entity_type` / `severity_level` - Matching criteria
+- `rule_condition` - Additional matching logic (JSON)
+- `action_type` - Action to take (AUTO_RETRY, ESCALATE, NOTIFY, ASSIGN)
+- `action_configuration` - Action-specific settings (JSON)
+- `retry_delay_minutes` - Wait time between retries
+- `escalation_delay_hours` - Time before escalation
+- `notification_recipients` - Alert recipients (JSON array)
+- `is_active` - Whether rule is enabled
+
+**Business Rules:**
+- Rules processed in priority order
+- Conditions enable complex matching
+- Actions support various response types
+- Timing controls manage workload
+- Active flag enables rule management
+
+### STPRule
+
+Defines criteria for straight-through processing eligibility.
+
+**Primary Key**: `stp_rule_id`
+
+**Key Attributes**:
+- `rule_name` - Descriptive rule name
+- `entity_type` - Applicable entity type
+- `rule_category` - Category (VALIDATION, SETTLEMENT, APPROVAL, etc.)
+- `rule_condition` - Eligibility criteria (JSON)
+- `auto_process` - Whether to process automatically
+- `bypass_manual_check` - Skip manual review
+- `processing_priority` - Order of rule evaluation
+- `tolerance_thresholds` - Acceptable variance levels (JSON)
+- `business_hours_only` - Time-based processing restriction
+- `is_active` - Rule enablement status
+
+**Business Rules:**
+- Rules determine STP eligibility
+- Conditions support complex logic
+- Priority affects evaluation order
+- Tolerances define acceptable variance
+- Business hours restriction for risk management
+
+### STPStatus
+
+Tracks straight-through processing status for entities.
+
+**Primary Key**: `stp_status_id`
+
+**Key Attributes**:
+- `entity_type` / `entity_id` - Associated business entity
+- `stp_eligible` - Whether entity qualifies for STP
+- `eligibility_reason` - Explanation of eligibility determination
+- `processing_status` - Current status (ELIGIBLE, PROCESSING, COMPLETED, MANUAL_REVIEW)
+- `stp_percentage` - Degree of automation achieved
+- `manual_steps_required` - Outstanding manual tasks (JSON array)
+- `processing_started_date` / `processing_completed_date` - Timeline
+- `workflow_instance_id` - Associated workflow
+
+**Business Rules:**
+- Eligibility determined by STP rules
+- Percentage tracks automation level
+- Manual steps identify bottlenecks
+- Integration with workflow management
+- Status progression tracking
+
+### ProcessingRule
+
+Defines business logic for automated processing.
+
+**Primary Key**: `processing_rule_id`
+
+**Key Attributes**:
+- `rule_name` - Descriptive name
+- `rule_type` - Type (VALIDATION, ENRICHMENT, TRANSFORMATION, etc.)
+- `entity_type` - Applicable entity
+- `rule_expression` - Business logic expression
+- `action_configuration` - Action settings (JSON)
+- `execution_order` - Processing sequence
+- `is_blocking` - Whether rule blocks processing on failure
+- `error_handling` - Failure response (EXCEPTION, WARNING, IGNORE)
+- `is_active` - Rule enablement
+
+**Business Rules:**
+- Expressions define business logic
+- Execution order ensures consistency
+- Blocking rules enforce data quality
+- Error handling manages failures
+- Active management enables rule updates
+
+### ReconciliationRun
+
+Tracks reconciliation process executions.
+
+**Primary Key**: `recon_run_id`
+
+**Key Attributes**:
+- `recon_type` - Type (TRADE_RECON, POSITION_RECON, CASH_RECON, etc.)
+- `recon_frequency` - Schedule (DAILY, WEEKLY, MONTHLY, ADHOC)
+- `business_date` - Business date being reconciled
+- `run_status` - Status (RUNNING, COMPLETED, FAILED, CANCELLED)
+- `source_system` / `target_system` - Systems being reconciled
+- `total_records_processed` / `matched_records` / `unmatched_records` - Statistics
+- `breaks_identified` - Number of breaks found
+- `tolerance_amount` - Acceptable variance threshold
+- `started_date` / `completed_date` - Execution timeline
+- `run_duration_seconds` - Performance metrics
+- `configuration` - Run-specific settings (JSON)
+
+**Business Rules:**
+- Each run reconciles specific business date
+- Statistics track matching effectiveness
+- Tolerance defines break sensitivity
+- Performance tracking for optimization
+- Configuration enables customization
+
+### ReconciliationBreak
+
+Tracks individual reconciliation differences.
+
+**Primary Key**: `recon_break_id`
+
+**Key Attributes**:
+- `recon_run_id` - Parent reconciliation run
+- `break_type` - Type (AMOUNT_DIFFERENCE, QUANTITY_DIFFERENCE, MISSING_TRADE, etc.)
+- `entity_type` / `entity_id` - Associated business entity
+- `break_status` - Status (OPEN, INVESTIGATING, EXPLAINED, RESOLVED)
+- `break_amount` / `break_currency` - Monetary difference
+- `source_value` / `target_value` - Differing values
+- `break_description` - Human-readable explanation
+- `investigation_notes` - Research findings
+- `resolution_action` - How break was resolved
+- `assigned_to` - Person investigating
+- `age_in_days` - Time since identification
+- `resolved_date` - Resolution timestamp
+- `exception_id` - Related exception if created
+
+**Business Rules:**
+- Breaks represent reconciliation differences
+- Status tracks investigation progress
+- Age tracking for SLA management
+- Association with exceptions for workflow
+- Resolution tracking for audit
+
+### ReconciliationRule
+
+Defines matching and tolerance rules for reconciliation.
+
+**Primary Key**: `recon_rule_id`
+
+**Key Attributes**:
+- `rule_name` - Descriptive name
+- `recon_type` - Applicable reconciliation type
+- `matching_criteria` - Fields to match (JSON)
+- `tolerance_rules` - Acceptable variances (JSON)
+- `break_classification` - How to classify breaks (JSON)
+- `auto_resolution_rules` - Automatic resolution logic (JSON)
+- `priority_order` - Rule evaluation sequence
+- `is_active` - Rule enablement
+- `effective_date` / `expiry_date` - Rule validity period
+
+**Business Rules:**
+- Matching criteria define comparison logic
+- Tolerances determine break sensitivity
+- Classification enables break categorization
+- Auto-resolution reduces manual effort
+- Priority ensures correct rule application
+- Date range enables temporal rule management
+
 ### AuditLog
 Comprehensive audit trail for all system changes.
 
