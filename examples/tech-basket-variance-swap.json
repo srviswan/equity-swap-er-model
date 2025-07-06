@@ -1,0 +1,419 @@
+{
+  "use_case": "Technology Basket Variance Swap",
+  "description": "Variance swap on a custom technology basket consisting of Apple, Microsoft, and Alphabet, traded between Deutsche Bank and BlackRock",
+  "trade_overview": {
+    "swap_type": "Variance Swap",
+    "underlying": "Custom Technology Basket (40% AAPL, 35% MSFT, 25% GOOGL)",
+    "notional_amount": 2000000.00,
+    "currency": "USD",
+    "trade_date": "2024-01-02",
+    "maturity_date": "2024-06-30",
+    "variance_strike": 25.50,
+    "counterparties": {
+      "variance_payer": "Deutsche Bank AG",
+      "variance_receiver": "BlackRock Global Funds"
+    }
+  },
+  "entities": {
+    "parties": [
+      {
+        "party_id": "PARTY005",
+        "party_name": "Deutsche Bank AG",
+        "party_type": "BANK",
+        "lei_code": "7LTWFZYICNSX8D621K86",
+        "country_of_incorporation": "DE",
+        "role": "Variance Payer (Short Volatility)"
+      },
+      {
+        "party_id": "PARTY002",
+        "party_name": "BlackRock Global Funds",
+        "party_type": "FUND",
+        "lei_code": "549300MS535GM1PT2B86",
+        "country_of_incorporation": "LU",
+        "role": "Variance Receiver (Long Volatility)"
+      }
+    ],
+    "underliers": [
+      {
+        "underlier_id": "UND009",
+        "asset_type": "BASKET",
+        "primary_identifier": "TECH_BASKET_001",
+        "identifier_type": "INTERNAL",
+        "asset_name": "Technology Basket",
+        "currency": "USD",
+        "exchange": "COMPOSITE",
+        "sector": "Technology",
+        "description": "Custom basket of large-cap technology stocks"
+      },
+      {
+        "underlier_id": "UND001",
+        "asset_type": "SINGLE_NAME",
+        "primary_identifier": "US0378331005",
+        "identifier_type": "ISIN",
+        "asset_name": "Apple Inc",
+        "currency": "USD",
+        "exchange": "NASDAQ",
+        "sector": "Technology"
+      },
+      {
+        "underlier_id": "UND002",
+        "asset_type": "SINGLE_NAME",
+        "primary_identifier": "US5949181045",
+        "identifier_type": "ISIN",
+        "asset_name": "Microsoft Corporation",
+        "currency": "USD",
+        "exchange": "NASDAQ",
+        "sector": "Technology"
+      },
+      {
+        "underlier_id": "UND003",
+        "asset_type": "SINGLE_NAME",
+        "primary_identifier": "US02079K3059",
+        "identifier_type": "ISIN",
+        "asset_name": "Alphabet Inc Class A",
+        "currency": "USD",
+        "exchange": "NASDAQ",
+        "sector": "Technology"
+      }
+    ],
+    "basket_components": [
+      {
+        "component_id": "BC001",
+        "basket_id": "UND009",
+        "component_underlier_id": "UND001",
+        "weight": 0.40,
+        "effective_date": "2024-01-01",
+        "shares": 1105.54,
+        "description": "Apple Inc - 40% weight"
+      },
+      {
+        "component_id": "BC002",
+        "basket_id": "UND009",
+        "component_underlier_id": "UND002",
+        "weight": 0.35,
+        "effective_date": "2024-01-01",
+        "shares": 935.37,
+        "description": "Microsoft Corporation - 35% weight"
+      },
+      {
+        "component_id": "BC003",
+        "basket_id": "UND009",
+        "component_underlier_id": "UND003",
+        "weight": 0.25,
+        "effective_date": "2024-01-01",
+        "shares": 357.99,
+        "description": "Alphabet Inc Class A - 25% weight"
+      }
+    ],
+    "tradable_product": {
+      "product_id": "PROD003",
+      "product_type": "EQUITY_SWAP_VARIANCE",
+      "product_name": "Equity Variance Swap",
+      "asset_class": "EQUITY",
+      "sub_asset_class": "SWAP"
+    },
+    "economic_terms": {
+      "economic_terms_id": "ET003",
+      "product_id": "PROD003",
+      "effective_date": "2024-01-02",
+      "termination_date": "2024-06-30",
+      "calculation_agent_id": "PARTY005",
+      "business_day_convention": "MODIFIED_FOLLOWING",
+      "business_centers": ["USNY", "DEFF"],
+      "extraordinary_events": {
+        "merger_events": "Component substitution methodology",
+        "tender_offers": "Standard ISDA provisions",
+        "delisting": "Replacement with similar market cap stock"
+      }
+    },
+    "payouts": [
+      {
+        "payout_id": "PAY004",
+        "payout_type": "PERFORMANCE",
+        "payer_party_id": "PARTY005",
+        "receiver_party_id": "PARTY002",
+        "payment_frequency": "AT_MATURITY",
+        "currency": "USD",
+        "performance_details": {
+          "performance_payout_id": "PP003",
+          "return_type": "VARIANCE_RETURN",
+          "initial_price": 100.00,
+          "initial_price_date": "2024-01-02",
+          "notional_amount": 2000000.00,
+          "notional_currency": "USD",
+          "number_of_data_series": 126,
+          "observation_start_date": "2024-01-02",
+          "observation_end_date": "2024-06-30",
+          "valuation_time": "16:00:00",
+          "variance_strike": 25.50,
+          "annualization_factor": 252
+        }
+      }
+    ],
+    "performance_payout_underliers": [
+      {
+        "performance_payout_id": "PP003",
+        "underlier_id": "UND009",
+        "weight": 1.0,
+        "effective_date": "2024-01-02",
+        "description": "Technology basket as single underlier for variance calculation"
+      }
+    ],
+    "trade": {
+      "trade_id": "TRD003",
+      "product_id": "PROD003",
+      "trade_date": "2024-01-02",
+      "trade_time": "2024-01-02T16:20:00Z",
+      "status": "ACTIVE",
+      "confirmation_method": "MANUAL",
+      "master_agreement_id": "ISDA_2002_MASTER_DE_BR"
+    },
+    "party_roles": [
+      {
+        "party_role_id": "PR007",
+        "trade_id": "TRD003",
+        "party_id": "PARTY005",
+        "role_type": "COUNTERPARTY_1",
+        "effective_date": "2024-01-02"
+      },
+      {
+        "party_role_id": "PR008",
+        "trade_id": "TRD003",
+        "party_id": "PARTY002",
+        "role_type": "COUNTERPARTY_2",
+        "effective_date": "2024-01-02"
+      },
+      {
+        "party_role_id": "PR009",
+        "trade_id": "TRD003",
+        "party_id": "PARTY005",
+        "role_type": "CALCULATION_AGENT",
+        "effective_date": "2024-01-02"
+      }
+    ]
+  },
+  "lifecycle_events": [
+    {
+      "event_id": "EVT003",
+      "event_type": "EXECUTION",
+      "event_date": "2024-01-02",
+      "description": "Initial variance swap execution",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT006",
+      "event_type": "CONFIRMATION",
+      "event_date": "2024-01-04",
+      "effective_date": "2024-01-02",
+      "description": "Trade confirmation received (manual process)",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT009",
+      "event_type": "CORPORATE_ACTION",
+      "event_date": "2024-03-15",
+      "effective_date": "2024-03-15",
+      "description": "Apple stock split 4:1 - basket rebalancing",
+      "event_details": {
+        "action_type": "STOCK_SPLIT",
+        "affected_component": "UND001",
+        "split_ratio": "4:1",
+        "adjustment_method": "Shares adjustment, weight maintained"
+      },
+      "processing_status": "PROCESSED"
+    }
+  ],
+  "price_observations": [
+    {
+      "observation_id": "OBS009",
+      "observation_date": "2024-01-02",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND009",
+      "observed_price": 100.00,
+      "observation_type": "CLOSING_PRICE",
+      "source": "COMPOSITE_CALCULATION",
+      "description": "Initial basket fixing - normalized to 100"
+    },
+    {
+      "observation_id": "OBS010",
+      "observation_date": "2024-01-03",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND009",
+      "observed_price": 102.35,
+      "observation_type": "CLOSING_PRICE",
+      "source": "COMPOSITE_CALCULATION"
+    },
+    {
+      "observation_id": "OBS011",
+      "observation_date": "2024-01-04",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND009",
+      "observed_price": 98.74,
+      "observation_type": "CLOSING_PRICE",
+      "source": "COMPOSITE_CALCULATION"
+    },
+    {
+      "observation_id": "OBS012",
+      "observation_date": "2024-01-05",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND009",
+      "observed_price": 101.89,
+      "observation_type": "CLOSING_PRICE",
+      "source": "COMPOSITE_CALCULATION"
+    }
+  ],
+  "component_observations": [
+    {
+      "observation_date": "2024-01-02",
+      "apple_price": 180.50,
+      "microsoft_price": 374.75,
+      "alphabet_price": 139.95,
+      "basket_calculation": "(180.50 * 0.40) + (374.75 * 0.35) + (139.95 * 0.25) = 238.39 -> normalized to 100.00"
+    },
+    {
+      "observation_date": "2024-01-03",
+      "apple_price": 182.25,
+      "microsoft_price": 378.22,
+      "alphabet_price": 142.15,
+      "basket_calculation": "Weighted calculation -> 243.98 -> normalized to 102.35"
+    }
+  ],
+  "valuations": [
+    {
+      "valuation_id": "VAL009",
+      "valuation_date": "2024-01-02",
+      "valuation_type": "MARK_TO_MODEL",
+      "base_currency": "USD",
+      "market_value": 2000000.00,
+      "unrealized_pnl": 0.00,
+      "daily_pnl": 0.00,
+      "vega": 156789.50,
+      "model_inputs": {
+        "implied_volatility": "25.5%",
+        "time_to_expiry": "0.497 years",
+        "risk_free_rate": "5.25%"
+      },
+      "description": "Initial variance swap valuation"
+    },
+    {
+      "valuation_id": "VAL010",
+      "valuation_date": "2024-01-05",
+      "valuation_type": "MARK_TO_MODEL",
+      "base_currency": "USD",
+      "market_value": 1987650.00,
+      "unrealized_pnl": -12350.00,
+      "daily_pnl": -4567.00,
+      "vega": 155234.20,
+      "model_inputs": {
+        "realized_variance_to_date": "28.7%",
+        "implied_volatility": "24.8%",
+        "time_to_expiry": "0.495 years"
+      },
+      "description": "Weekly variance swap revaluation"
+    }
+  ],
+  "settlements": [
+    {
+      "settlement_id": "SET004",
+      "settlement_date": "2024-07-05",
+      "settlement_type": "CASH",
+      "settlement_amount": 245000.00,
+      "settlement_currency": "USD",
+      "payer_party_id": "PARTY002",
+      "receiver_party_id": "PARTY005",
+      "payment_method": "WIRE",
+      "settlement_status": "PENDING",
+      "description": "Final variance swap settlement - realized variance 31.2% vs strike 25.5%",
+      "calculation_details": {
+        "variance_strike": 25.50,
+        "realized_variance": 31.20,
+        "variance_difference": 5.70,
+        "notional_amount": 2000000.00,
+        "settlement_amount": "(31.20 - 25.50) / 100 * 2000000 = 114000 + accrued interest"
+      }
+    }
+  ],
+  "collateral": [
+    {
+      "collateral_id": "COL003",
+      "collateral_type": "CASH",
+      "collateral_amount": 150000.00,
+      "collateral_currency": "USD",
+      "posting_party_id": "PARTY002",
+      "receiving_party_id": "PARTY005",
+      "posting_date": "2024-01-02",
+      "haircut_percentage": 0.00,
+      "collateral_value": 150000.00,
+      "status": "POSTED",
+      "custodian": "JPMorgan Chase",
+      "description": "Initial margin for variance swap - 7.5% of notional"
+    }
+  ],
+  "business_logic": {
+    "basket_calculation": {
+      "methodology": "Weighted average of component prices",
+      "rebalancing": "No rebalancing - fixed weights throughout trade life",
+      "corporate_actions": "Standard ISDA adjustments applied to components",
+      "normalization": "Basket level normalized to 100 on trade date"
+    },
+    "variance_calculation": {
+      "formula": "Annualized realized variance = (252/n) * Σ(ln(Si/Si-1))²",
+      "observation_frequency": "Daily closing prices",
+      "business_days_only": true,
+      "annualization_factor": 252,
+      "settlement_formula": "Notional * (Realized_Variance - Strike_Variance) / 100"
+    },
+    "risk_management": {
+      "vega_hedging": "Dynamic delta hedging of individual components",
+      "correlation_risk": "Monitor inter-component correlations",
+      "gap_risk": "Overnight and weekend gap risk management"
+    }
+  },
+  "regulatory_aspects": {
+    "reporting_requirements": {
+      "dodd_frank": "US variance swap reporting requirements",
+      "emir": "EU derivatives reporting",
+      "mifid_ii": "Best execution and transparency requirements"
+    },
+    "margin_requirements": {
+      "initial_margin": "Based on ISDA SIMM for equity volatility products",
+      "variation_margin": "Daily mark-to-market variations",
+      "haircuts": "Applied to non-cash collateral"
+    }
+  },
+  "risk_factors": {
+    "market_risks": [
+      "Volatility risk - primary P&L driver",
+      "Correlation risk - between basket components",
+      "Gap risk - price jumps over weekends/holidays",
+      "Model risk - variance calculation methodology"
+    ],
+    "operational_risks": [
+      "Data quality - accurate component prices",
+      "Corporate actions - timely adjustment processing",
+      "Basket calculation - correct weighting application"
+    ],
+    "counterparty_risks": [
+      "Credit risk - Deutsche Bank counterparty exposure",
+      "Settlement risk - final cash settlement",
+      "Collateral risk - margin adequacy"
+    ]
+  },
+  "integration_requirements": {
+    "market_data": [
+      "Real-time prices for AAPL, MSFT, GOOGL",
+      "Corporate action feeds for all components",
+      "Volatility surfaces for model calibration"
+    ],
+    "calculations": [
+      "Daily basket level calculation",
+      "Variance tracking and accumulation",
+      "Dynamic hedging ratio calculations"
+    ],
+    "systems": [
+      "Trade capture system integration",
+      "Risk management system feeds",
+      "Collateral management system"
+    ]
+  }
+}

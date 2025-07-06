@@ -1,0 +1,349 @@
+@startuml Equity_Swap_ER_Diagram
+!define ENTITY(name,type) entity name as "name\n--\n<<type>>"
+!define PRIMARY_KEY(key) <b><color:red>key</color></b>
+!define FOREIGN_KEY(key) <color:blue>key</color>
+
+title Equity Swap Management System - Entity Relationship Model\n(Based on FINOS CDM Rosetta Specification)
+
+' =============================================================================
+' REFERENCE DATA ENTITIES
+' =============================================================================
+
+ENTITY(Party, Reference) {
+  PRIMARY_KEY(party_id) : VARCHAR(50)
+  --
+  party_name : VARCHAR(200)
+  party_type : VARCHAR(20)
+  lei_code : CHAR(20)
+  party_identifiers : JSONB
+  country_of_incorporation : CHAR(2)
+  address : JSONB
+  contact_information : JSONB
+  regulatory_status : JSONB
+  credit_rating : VARCHAR(10)
+  is_active : BOOLEAN
+  created_date : DATE
+  last_updated : TIMESTAMP
+}
+
+ENTITY(Underlier, Reference) {
+  PRIMARY_KEY(underlier_id) : VARCHAR(50)
+  --
+  asset_type : VARCHAR(20)
+  primary_identifier : VARCHAR(50)
+  identifier_type : VARCHAR(20)
+  secondary_identifiers : JSONB
+  asset_name : VARCHAR(200)
+  asset_description : TEXT
+  currency : CHAR(3)
+  exchange : VARCHAR(50)
+  country : CHAR(2)
+  sector : VARCHAR(100)
+  is_active : BOOLEAN
+  created_date : DATE
+  last_updated : TIMESTAMP
+}
+
+ENTITY(BasketComponent, Reference) {
+  PRIMARY_KEY(component_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(basket_id) : VARCHAR(50)
+  FOREIGN_KEY(component_underlier_id) : VARCHAR(50)
+  weight : DECIMAL(10,6)
+  shares : DECIMAL(18,6)
+  effective_date : DATE
+  termination_date : DATE
+}
+
+' =============================================================================
+' PRODUCT DEFINITION ENTITIES
+' =============================================================================
+
+ENTITY(TradableProduct, Product) {
+  PRIMARY_KEY(product_id) : VARCHAR(50)
+  --
+  product_type : VARCHAR(50)
+  product_name : VARCHAR(200)
+  asset_class : VARCHAR(50)
+  sub_asset_class : VARCHAR(50)
+  version : INTEGER
+  is_active : BOOLEAN
+  created_date : DATE
+  created_by : VARCHAR(100)
+}
+
+ENTITY(EconomicTerms, Product) {
+  PRIMARY_KEY(economic_terms_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(product_id) : VARCHAR(50)
+  effective_date : DATE
+  termination_date : DATE
+  FOREIGN_KEY(calculation_agent_id) : VARCHAR(50)
+  business_day_convention : VARCHAR(30)
+  business_centers : JSONB
+  extraordinary_events : JSONB
+  version : INTEGER
+}
+
+' =============================================================================
+' PAYOUT STRUCTURE ENTITIES
+' =============================================================================
+
+ENTITY(Payout, Payout) {
+  PRIMARY_KEY(payout_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(economic_terms_id) : VARCHAR(50)
+  payout_type : VARCHAR(20)
+  FOREIGN_KEY(payer_party_id) : VARCHAR(50)
+  FOREIGN_KEY(receiver_party_id) : VARCHAR(50)
+  payment_frequency : VARCHAR(20)
+  day_count_fraction : VARCHAR(10)
+  currency : CHAR(3)
+}
+
+ENTITY(PerformancePayout, Payout) {
+  PRIMARY_KEY(performance_payout_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(payout_id) : VARCHAR(50)
+  return_type : VARCHAR(20)
+  initial_price : DECIMAL(18,6)
+  initial_price_date : DATE
+  notional_amount : DECIMAL(18,2)
+  notional_currency : CHAR(3)
+  number_of_data_series : INTEGER
+  observation_start_date : DATE
+  observation_end_date : DATE
+  valuation_time : TIME
+  market_disruption_events : JSONB
+}
+
+ENTITY(PerformancePayoutUnderlier, Junction) {
+  PRIMARY_KEY(performance_payout_id) : VARCHAR(50)
+  PRIMARY_KEY(underlier_id) : VARCHAR(50)
+  PRIMARY_KEY(effective_date) : DATE
+  --
+  weight : DECIMAL(10,6)
+  termination_date : DATE
+}
+
+' =============================================================================
+' TRADE ENTITIES
+' =============================================================================
+
+ENTITY(Trade, Trade) {
+  PRIMARY_KEY(trade_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(product_id) : VARCHAR(50)
+  trade_date : DATE
+  trade_time : TIMESTAMP
+  status : VARCHAR(20)
+  master_agreement_id : VARCHAR(50)
+  confirmation_method : VARCHAR(20)
+  created_timestamp : TIMESTAMP
+  updated_timestamp : TIMESTAMP
+}
+
+ENTITY(TradeState, Trade) {
+  PRIMARY_KEY(trade_state_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  state_timestamp : TIMESTAMP
+  state_type : VARCHAR(30)
+  is_current : BOOLEAN
+  FOREIGN_KEY(previous_state_id) : VARCHAR(50)
+  created_by : VARCHAR(100)
+}
+
+ENTITY(PartyRole, Trade) {
+  PRIMARY_KEY(party_role_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  FOREIGN_KEY(party_id) : VARCHAR(50)
+  role_type : VARCHAR(30)
+  role_description : TEXT
+  effective_date : DATE
+  termination_date : DATE
+  created_by : VARCHAR(100)
+  created_timestamp : TIMESTAMP
+}
+
+' =============================================================================
+' EVENT AND LIFECYCLE ENTITIES
+' =============================================================================
+
+ENTITY(TradeEvent, Event) {
+  PRIMARY_KEY(event_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  event_type : VARCHAR(30)
+  event_date : DATE
+  effective_date : DATE
+  event_qualifier : VARCHAR(100)
+  event_details : JSONB
+  triggered_by : VARCHAR(100)
+  processed_by : VARCHAR(100)
+  processing_status : VARCHAR(20)
+  created_timestamp : TIMESTAMP
+}
+
+ENTITY(ObservationEvent, Event) {
+  PRIMARY_KEY(observation_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  observation_date : DATE
+  observation_time : TIME
+  FOREIGN_KEY(underlier_id) : VARCHAR(50)
+  observed_price : DECIMAL(18,6)
+  observation_type : VARCHAR(20)
+  source : VARCHAR(100)
+  market_disruption : BOOLEAN
+  created_timestamp : TIMESTAMP
+}
+
+' =============================================================================
+' VALUATION AND RISK ENTITIES
+' =============================================================================
+
+ENTITY(Valuation, Valuation) {
+  PRIMARY_KEY(valuation_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  valuation_date : DATE
+  valuation_time : TIMESTAMP
+  valuation_type : VARCHAR(20)
+  base_currency : CHAR(3)
+  market_value : DECIMAL(18,2)
+  unrealized_pnl : DECIMAL(18,2)
+  daily_pnl : DECIMAL(18,2)
+  pv01 : DECIMAL(18,6)
+  delta : DECIMAL(18,6)
+  gamma : DECIMAL(18,6)
+  vega : DECIMAL(18,6)
+  theta : DECIMAL(18,6)
+  model_inputs : JSONB
+  created_by : VARCHAR(100)
+  created_timestamp : TIMESTAMP
+}
+
+' =============================================================================
+' SETTLEMENT AND COLLATERAL ENTITIES
+' =============================================================================
+
+ENTITY(Settlement, Settlement) {
+  PRIMARY_KEY(settlement_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  settlement_date : DATE
+  settlement_type : VARCHAR(20)
+  settlement_amount : DECIMAL(18,2)
+  settlement_currency : CHAR(3)
+  FOREIGN_KEY(payer_party_id) : VARCHAR(50)
+  FOREIGN_KEY(receiver_party_id) : VARCHAR(50)
+  payment_method : VARCHAR(20)
+  settlement_status : VARCHAR(20)
+  settlement_reference : VARCHAR(100)
+  failure_reason : TEXT
+  created_timestamp : TIMESTAMP
+  settled_timestamp : TIMESTAMP
+}
+
+ENTITY(Collateral, Collateral) {
+  PRIMARY_KEY(collateral_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  collateral_type : VARCHAR(30)
+  collateral_amount : DECIMAL(18,2)
+  collateral_currency : CHAR(3)
+  FOREIGN_KEY(posting_party_id) : VARCHAR(50)
+  FOREIGN_KEY(receiving_party_id) : VARCHAR(50)
+  posting_date : DATE
+  maturity_date : DATE
+  haircut_percentage : DECIMAL(5,2)
+  collateral_value : DECIMAL(18,2)
+  status : VARCHAR(20)
+  custodian : VARCHAR(100)
+  created_timestamp : TIMESTAMP
+}
+
+' =============================================================================
+' AUDIT AND DATA QUALITY ENTITIES
+' =============================================================================
+
+ENTITY(DataQualityRule, Audit) {
+  PRIMARY_KEY(rule_id) : VARCHAR(50)
+  --
+  rule_name : VARCHAR(200)
+  entity_name : VARCHAR(100)
+  rule_type : VARCHAR(30)
+  rule_expression : TEXT
+  error_message : TEXT
+  severity : VARCHAR(10)
+  is_active : BOOLEAN
+  created_date : DATE
+}
+
+ENTITY(AuditLog, Audit) {
+  PRIMARY_KEY(audit_id) : VARCHAR(50)
+  --
+  table_name : VARCHAR(100)
+  record_id : VARCHAR(50)
+  operation_type : VARCHAR(10)
+  old_values : JSONB
+  new_values : JSONB
+  changed_by : VARCHAR(100)
+  change_reason : TEXT
+  change_timestamp : TIMESTAMP
+  session_id : VARCHAR(100)
+  ip_address : VARCHAR(45)
+}
+
+' =============================================================================
+' RELATIONSHIPS
+' =============================================================================
+
+' Reference Data Relationships
+Underlier ||--o{ BasketComponent : "basket contains"
+Underlier ||--o{ BasketComponent : "components"
+
+' Product Relationships
+TradableProduct ||--o{ EconomicTerms : "has terms"
+EconomicTerms ||--o{ Payout : "defines payouts"
+Payout ||--|| PerformancePayout : "extends"
+PerformancePayout }o--o{ Underlier : "references"
+(PerformancePayout, Underlier) .. PerformancePayoutUnderlier
+
+' Party Relationships
+Party ||--o{ EconomicTerms : "calculation agent"
+Party ||--o{ Payout : "payer"
+Party ||--o{ Payout : "receiver"
+Party ||--o{ PartyRole : "plays role"
+
+' Trade Relationships
+TradableProduct ||--o{ Trade : "traded as"
+Trade ||--o{ TradeState : "has states"
+Trade ||--o{ PartyRole : "involves parties"
+Trade ||--o{ TradeEvent : "generates events"
+Trade ||--o{ ObservationEvent : "observes prices"
+Trade ||--o{ Valuation : "valued"
+Trade ||--o{ Settlement : "settles"
+Trade ||--o{ Collateral : "secured by"
+
+' Event Relationships
+TradeState ||--o{ TradeState : "previous state"
+Underlier ||--o{ ObservationEvent : "observed"
+
+' Settlement and Collateral Relationships
+Party ||--o{ Settlement : "payer"
+Party ||--o{ Settlement : "receiver"
+Party ||--o{ Collateral : "posting party"
+Party ||--o{ Collateral : "receiving party"
+
+' =============================================================================
+' LEGEND AND NOTES
+' =============================================================================
+
+note top : **Equity Swap ER Model Key Features**\n• Based on FINOS CDM Rosetta specification\n• Supports all equity swap types (price return, total return, variance, volatility)\n• Comprehensive lifecycle management\n• Full audit trail and data quality controls\n• Regulatory compliance ready
+
+note bottom : **Entity Color Coding:**\n• Reference Data (Party, Underlier)\n• Product Definition (TradableProduct, EconomicTerms)\n• Payout Structure (Payout, PerformancePayout)\n• Trade Core (Trade, TradeState)\n• Events & Lifecycle (TradeEvent, ObservationEvent)\n• Risk & Valuation (Valuation)\n• Settlement & Collateral (Settlement, Collateral)\n• Audit & Quality (DataQualityRule, AuditLog)
+
+@enduml

@@ -1,0 +1,471 @@
+{
+  "use_case": "S&P 500 Price Return Swap",
+  "description": "Price return swap on S&P 500 Index between Credit Suisse and Vanguard, with quarterly resets and no dividend pass-through",
+  "trade_overview": {
+    "swap_type": "Price Return Swap",
+    "underlying": "S&P 500 Index (SPX)",
+    "notional_amount": 50000000.00,
+    "currency": "USD",
+    "trade_date": "2024-01-15",
+    "maturity_date": "2026-01-15",
+    "counterparties": {
+      "equity_return_payer": "Credit Suisse International",
+      "equity_return_receiver": "Vanguard Global Equity Fund"
+    },
+    "structure": {
+      "reset_frequency": "QUARTERLY",
+      "dividend_treatment": "NOT_INCLUDED",
+      "financing_leg": "USD 3M TERM_SOFR + 150 bps"
+    }
+  },
+  "entities": {
+    "parties": [
+      {
+        "party_id": "PARTY006",
+        "party_name": "Credit Suisse International",
+        "party_type": "BANK",
+        "lei_code": "DL6FFRRLF74S01HE2M14",
+        "country_of_incorporation": "GB",
+        "role": "Equity Return Payer / Financing Rate Receiver"
+      },
+      {
+        "party_id": "PARTY007",
+        "party_name": "Vanguard Global Equity Fund",
+        "party_type": "FUND",
+        "lei_code": "549300XQKK8GJ4RSUH74",
+        "country_of_incorporation": "US",
+        "role": "Equity Return Receiver / Financing Rate Payer"
+      }
+    ],
+    "underliers": [
+      {
+        "underlier_id": "UND010",
+        "asset_type": "INDEX",
+        "primary_identifier": "SPX",
+        "identifier_type": "TICKER",
+        "asset_name": "S&P 500 Index",
+        "currency": "USD",
+        "exchange": "CBOE",
+        "sector": "DIVERSIFIED",
+        "index_details": {
+          "index_family": "S&P",
+          "index_type": "CAPITALIZATION_WEIGHTED",
+          "constituent_count": 500,
+          "calculation_methodology": "Market cap weighted",
+          "rebalancing_frequency": "QUARTERLY",
+          "base_date": "1957-03-04",
+          "base_value": 10.00
+        }
+      }
+    ],
+    "tradable_product": {
+      "product_id": "PROD005",
+      "product_type": "EQUITY_SWAP_PRICE_RETURN",
+      "product_name": "Equity Price Return Swap",
+      "asset_class": "EQUITY",
+      "sub_asset_class": "SWAP"
+    },
+    "economic_terms": {
+      "economic_terms_id": "ET005",
+      "product_id": "PROD005",
+      "effective_date": "2024-01-15",
+      "termination_date": "2026-01-15",
+      "calculation_agent_id": "PARTY006",
+      "business_day_convention": "MODIFIED_FOLLOWING",
+      "business_centers": ["USNY"],
+      "reset_dates": [
+        "2024-04-15",
+        "2024-07-15", 
+        "2024-10-15",
+        "2025-01-15",
+        "2025-04-15",
+        "2025-07-15",
+        "2025-10-15",
+        "2026-01-15"
+      ],
+      "extraordinary_events": {
+        "index_modification": "Follow index provider methodology",
+        "index_cancellation": "Substitute with similar broad market index",
+        "disruption_events": "Standard ISDA provisions apply"
+      }
+    },
+    "payouts": [
+      {
+        "payout_id": "PAY006",
+        "payout_type": "PERFORMANCE",
+        "payer_party_id": "PARTY006",
+        "receiver_party_id": "PARTY007",
+        "payment_frequency": "QUARTERLY",
+        "currency": "USD",
+        "performance_details": {
+          "performance_payout_id": "PP005",
+          "return_type": "PRICE_RETURN",
+          "initial_price": 4756.50,
+          "initial_price_date": "2024-01-15",
+          "notional_amount": 50000000.00,
+          "notional_currency": "USD",
+          "observation_start_date": "2024-01-15",
+          "observation_end_date": "2026-01-15",
+          "valuation_time": "16:00:00",
+          "reset_methodology": "Quarterly price resets with performance payments"
+        }
+      },
+      {
+        "payout_id": "PAY007",
+        "payout_type": "INTEREST_RATE",
+        "payer_party_id": "PARTY007",
+        "receiver_party_id": "PARTY006",
+        "payment_frequency": "QUARTERLY",
+        "currency": "USD",
+        "interest_rate": "3M TERM_SOFR + 150 bps",
+        "day_count_fraction": "ACT/360",
+        "reset_frequency": "QUARTERLY"
+      }
+    ],
+    "performance_payout_underliers": [
+      {
+        "performance_payout_id": "PP005",
+        "underlier_id": "UND010",
+        "weight": 1.0,
+        "effective_date": "2024-01-15",
+        "description": "S&P 500 Index as single underlier"
+      }
+    ],
+    "trade": {
+      "trade_id": "TRD005",
+      "product_id": "PROD005",
+      "trade_date": "2024-01-15",
+      "trade_time": "2024-01-15T15:45:00Z",
+      "status": "ACTIVE",
+      "confirmation_method": "ELECTRONIC",
+      "master_agreement_id": "ISDA_2002_MASTER_CS_VG"
+    },
+    "party_roles": [
+      {
+        "party_role_id": "PR013",
+        "trade_id": "TRD005",
+        "party_id": "PARTY006",
+        "role_type": "COUNTERPARTY_1",
+        "effective_date": "2024-01-15"
+      },
+      {
+        "party_role_id": "PR014",
+        "trade_id": "TRD005",
+        "party_id": "PARTY007",
+        "role_type": "COUNTERPARTY_2",
+        "effective_date": "2024-01-15"
+      },
+      {
+        "party_role_id": "PR015",
+        "trade_id": "TRD005",
+        "party_id": "PARTY006",
+        "role_type": "CALCULATION_AGENT",
+        "effective_date": "2024-01-15"
+      }
+    ]
+  },
+  "lifecycle_events": [
+    {
+      "event_id": "EVT010",
+      "event_type": "EXECUTION",
+      "event_date": "2024-01-15",
+      "description": "S&P 500 price return swap execution",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT011",
+      "event_type": "CONFIRMATION",
+      "event_date": "2024-01-16",
+      "effective_date": "2024-01-15",
+      "description": "Electronic confirmation via DTCC",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT012",
+      "event_type": "RESET",
+      "event_date": "2024-04-15",
+      "effective_date": "2024-04-15",
+      "description": "Q1 2024 quarterly reset and settlement",
+      "reset_details": {
+        "initial_level": 4756.50,
+        "final_level": 5184.42,
+        "performance": "8.99%",
+        "equity_payment": 4495000.00,
+        "interest_payment": 612500.00,
+        "net_payment": 3882500.00,
+        "payment_direction": "CS pays Vanguard"
+      },
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT013",
+      "event_type": "RESET",
+      "event_date": "2024-07-15",
+      "effective_date": "2024-07-15", 
+      "description": "Q2 2024 quarterly reset and settlement",
+      "reset_details": {
+        "initial_level": 5184.42,
+        "final_level": 5555.74,
+        "performance": "7.16%",
+        "equity_payment": 3580000.00,
+        "interest_payment": 675000.00,
+        "net_payment": 2905000.00,
+        "payment_direction": "CS pays Vanguard"
+      },
+      "processing_status": "PROCESSED"
+    }
+  ],
+  "price_observations": [
+    {
+      "observation_id": "OBS015",
+      "observation_date": "2024-01-15",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND010",
+      "observed_price": 4756.50,
+      "observation_type": "CLOSING_LEVEL",
+      "source": "S&P_DOW_JONES_INDICES",
+      "description": "Initial S&P 500 fixing level"
+    },
+    {
+      "observation_id": "OBS016",
+      "observation_date": "2024-01-16",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND010",
+      "observed_price": 4739.21,
+      "observation_type": "CLOSING_LEVEL",
+      "source": "S&P_DOW_JONES_INDICES"
+    },
+    {
+      "observation_id": "OBS017",
+      "observation_date": "2024-04-15",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND010",
+      "observed_price": 5184.42,
+      "observation_type": "CLOSING_LEVEL",
+      "source": "S&P_DOW_JONES_INDICES",
+      "description": "Q1 2024 reset fixing level"
+    },
+    {
+      "observation_id": "OBS018",
+      "observation_date": "2024-07-15",
+      "observation_time": "16:00:00",
+      "underlier_id": "UND010",
+      "observed_price": 5555.74,
+      "observation_type": "CLOSING_LEVEL",
+      "source": "S&P_DOW_JONES_INDICES",
+      "description": "Q2 2024 reset fixing level"
+    }
+  ],
+  "interest_rate_observations": [
+    {
+      "observation_date": "2024-01-15",
+      "term_sofr_3m": "5.35%",
+      "spread": "1.50%",
+      "all_in_rate": "6.85%",
+      "description": "Initial interest rate fixing"
+    },
+    {
+      "observation_date": "2024-04-15",
+      "term_sofr_3m": "5.42%",
+      "spread": "1.50%",
+      "all_in_rate": "6.92%",
+      "description": "Q1 2024 interest rate reset"
+    },
+    {
+      "observation_date": "2024-07-15",
+      "term_sofr_3m": "5.28%",
+      "spread": "1.50%",
+      "all_in_rate": "6.78%",
+      "description": "Q2 2024 interest rate reset"
+    }
+  ],
+  "valuations": [
+    {
+      "valuation_id": "VAL015",
+      "valuation_date": "2024-01-15",
+      "valuation_type": "MARK_TO_MARKET",
+      "base_currency": "USD",
+      "market_value": 50000000.00,
+      "unrealized_pnl": 0.00,
+      "daily_pnl": 0.00,
+      "delta": 1.0,
+      "description": "Initial S&P 500 swap valuation"
+    },
+    {
+      "valuation_id": "VAL016",
+      "valuation_date": "2024-01-16",
+      "valuation_type": "MARK_TO_MARKET",
+      "base_currency": "USD",
+      "market_value": 49817650.00,
+      "unrealized_pnl": -182350.00,
+      "daily_pnl": -182350.00,
+      "delta": 1.0,
+      "description": "Daily mark-to-market after first day"
+    },
+    {
+      "valuation_id": "VAL017",
+      "valuation_date": "2024-04-15",
+      "valuation_type": "MARK_TO_MARKET",
+      "base_currency": "USD",
+      "market_value": 54495000.00,
+      "unrealized_pnl": 4495000.00,
+      "quarterly_pnl": 4495000.00,
+      "delta": 1.0,
+      "description": "Q1 2024 reset valuation"
+    }
+  ],
+  "settlements": [
+    {
+      "settlement_id": "SET006",
+      "settlement_date": "2024-04-17",
+      "settlement_type": "NET_CASH",
+      "settlement_amount": 3882500.00,
+      "settlement_currency": "USD",
+      "payer_party_id": "PARTY006",
+      "receiver_party_id": "PARTY007",
+      "payment_method": "BOOK_TRANSFER",
+      "settlement_status": "SETTLED",
+      "description": "Q1 2024 net quarterly settlement",
+      "calculation_details": {
+        "equity_performance_payment": 4495000.00,
+        "interest_payment": 612500.00,
+        "net_amount": 3882500.00,
+        "calculation": "Equity performance (8.99% * $50M) minus interest (6.85% * $50M * 0.25)"
+      }
+    },
+    {
+      "settlement_id": "SET007",
+      "settlement_date": "2024-07-17",
+      "settlement_type": "NET_CASH",
+      "settlement_amount": 2905000.00,
+      "settlement_currency": "USD",
+      "payer_party_id": "PARTY006",
+      "receiver_party_id": "PARTY007",
+      "payment_method": "WIRE",
+      "settlement_status": "SETTLED",
+      "description": "Q2 2024 net quarterly settlement",
+      "calculation_details": {
+        "equity_performance_payment": 3580000.00,
+        "interest_payment": 675000.00,
+        "net_amount": 2905000.00,
+        "calculation": "Equity performance (7.16% * $50M) minus interest (6.92% * $50M * 0.25)"
+      }
+    }
+  ],
+  "collateral": [
+    {
+      "collateral_id": "COL005",
+      "collateral_type": "GOVERNMENT_BONDS",
+      "collateral_amount": 2500000.00,
+      "collateral_currency": "USD",
+      "posting_party_id": "PARTY007",
+      "receiving_party_id": "PARTY006",
+      "posting_date": "2024-01-15",
+      "haircut_percentage": 2.0,
+      "collateral_value": 2450000.00,
+      "status": "POSTED",
+      "custodian": "State Street Bank",
+      "description": "US Treasury bonds as initial margin - 5% of notional",
+      "securities_details": {
+        "security_type": "US_TREASURY_BONDS",
+        "maturity_range": "2-10 years",
+        "average_rating": "AAA"
+      }
+    }
+  ],
+  "business_logic": {
+    "index_tracking": {
+      "methodology": "Track official S&P 500 closing levels",
+      "data_source": "S&P Dow Jones Indices official publication",
+      "adjustment_events": "Follow S&P index methodology for additions/deletions",
+      "disruption_fallback": "Use previous day's level with appropriate adjustments"
+    },
+    "performance_calculation": {
+      "formula": "Performance = (Final_Level - Initial_Level) / Initial_Level",
+      "reset_frequency": "Quarterly on reset dates",
+      "compounding": "No compounding - each period calculated independently",
+      "dividend_treatment": "Price return only - dividends not included"
+    },
+    "interest_rate_mechanism": {
+      "floating_rate": "3M USD Term SOFR",
+      "spread": "150 basis points",
+      "day_count": "ACT/360",
+      "payment_lag": "2 business days after reset date"
+    },
+    "settlement_netting": {
+      "methodology": "Net settlement of equity performance vs interest rate payment",
+      "currency": "USD for all payments",
+      "payment_threshold": "$50,000 minimum"
+    }
+  },
+  "regulatory_aspects": {
+    "reporting_requirements": {
+      "cftc_reporting": "Swap data repository reporting for large notional",
+      "sec_reporting": "Form PF reporting for fund counterparty",
+      "prudential_reporting": "Bank regulatory capital reporting"
+    },
+    "margin_requirements": {
+      "initial_margin": "ISDA SIMM calculation for equity index products",
+      "variation_margin": "Daily exchange based on mark-to-market",
+      "segregation": "Client collateral segregated at qualified custodian",
+      "rehypothecation": "Limited rehypothecation rights"
+    },
+    "capital_treatment": {
+      "basel_iii": "Standardized approach for counterparty credit risk",
+      "market_risk": "Sensitivities-based approach for market risk capital",
+      "operational_risk": "Standardized measurement approach"
+    }
+  },
+  "risk_management": {
+    "market_risks": [
+      "Equity index risk - systematic exposure to US large cap stocks",
+      "Interest rate risk - sensitivity to USD short-term rates",
+      "Basis risk - Term SOFR vs other funding rates",
+      "Gap risk - overnight and weekend market moves"
+    ],
+    "credit_risks": [
+      "Counterparty credit risk - exposure to Credit Suisse",
+      "Settlement risk - quarterly net settlement amounts",
+      "Collateral risk - adequacy of government bond collateral",
+      "Wrong-way risk - correlation between counterparty credit and market risk"
+    ],
+    "operational_risks": [
+      "Index calculation errors",
+      "Interest rate fixing errors", 
+      "Settlement processing failures",
+      "Collateral management errors"
+    ]
+  },
+  "hedge_accounting": {
+    "designation": "Cash flow hedge of anticipated equity purchases",
+    "effectiveness_testing": "Dollar offset method",
+    "hedge_ratio": "1:1 hedge ratio",
+    "ineffectiveness_sources": [
+      "Interest rate component",
+      "Credit spread changes",
+      "Timing differences"
+    ]
+  },
+  "integration_points": {
+    "market_data_feeds": [
+      "S&P Dow Jones Indices - real-time index levels",
+      "Bloomberg/Refinitiv - Term SOFR rates",
+      "Corporate actions feeds for index constituent changes"
+    ],
+    "settlement_systems": [
+      "SWIFT MT202 for payment instructions",
+      "FedWire for USD settlements",
+      "DTC for US Treasury collateral movements"
+    ],
+    "risk_systems": [
+      "Daily P&L attribution and risk reporting",
+      "VaR calculations for portfolio risk",
+      "Stress testing and scenario analysis"
+    ],
+    "regulatory_systems": [
+      "CFTC swap data repository submissions",
+      "DTCC trade reporting and confirmation",
+      "Internal audit and compliance monitoring"
+    ]
+  }
+}

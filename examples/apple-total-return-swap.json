@@ -1,0 +1,313 @@
+{
+  "use_case": "Apple Total Return Swap",
+  "description": "Comprehensive example of an equity total return swap on Apple Inc. stock between Goldman Sachs and BlackRock",
+  "trade_overview": {
+    "swap_type": "Total Return Swap",
+    "underlying": "Apple Inc. (AAPL)",
+    "notional_amount": 10000000.00,
+    "currency": "USD",
+    "trade_date": "2024-01-02",
+    "maturity_date": "2025-01-02",
+    "counterparties": {
+      "payer_of_equity_performance": "Goldman Sachs International",
+      "receiver_of_equity_performance": "BlackRock Global Funds"
+    }
+  },
+  "entities": {
+    "parties": [
+      {
+        "party_id": "PARTY001",
+        "party_name": "Goldman Sachs International", 
+        "party_type": "BANK",
+        "lei_code": "W22LROWP2IHZNBB6K528",
+        "country_of_incorporation": "GB",
+        "role": "Equity Return Payer / Interest Rate Receiver"
+      },
+      {
+        "party_id": "PARTY002",
+        "party_name": "BlackRock Global Funds",
+        "party_type": "FUND", 
+        "lei_code": "549300MS535GM1PT2B86",
+        "country_of_incorporation": "LU",
+        "role": "Equity Return Receiver / Interest Rate Payer"
+      }
+    ],
+    "underliers": [
+      {
+        "underlier_id": "UND001",
+        "asset_type": "SINGLE_NAME",
+        "primary_identifier": "US0378331005",
+        "identifier_type": "ISIN",
+        "asset_name": "Apple Inc",
+        "currency": "USD",
+        "exchange": "NASDAQ",
+        "sector": "Technology"
+      }
+    ],
+    "tradable_product": {
+      "product_id": "PROD001",
+      "product_type": "EQUITY_SWAP_TOTAL_RETURN",
+      "product_name": "Equity Total Return Swap",
+      "asset_class": "EQUITY",
+      "sub_asset_class": "SWAP"
+    },
+    "economic_terms": {
+      "economic_terms_id": "ET001",
+      "product_id": "PROD001",
+      "effective_date": "2024-01-02",
+      "termination_date": "2025-01-02",
+      "calculation_agent_id": "PARTY001",
+      "business_day_convention": "MODIFIED_FOLLOWING",
+      "business_centers": ["USNY", "GBLO"]
+    },
+    "payouts": [
+      {
+        "payout_id": "PAY001",
+        "payout_type": "PERFORMANCE",
+        "payer_party_id": "PARTY001",
+        "receiver_party_id": "PARTY002",
+        "payment_frequency": "QUARTERLY",
+        "currency": "USD",
+        "performance_details": {
+          "performance_payout_id": "PP001",
+          "return_type": "TOTAL_RETURN",
+          "initial_price": 180.50,
+          "initial_price_date": "2024-01-02",
+          "notional_amount": 10000000.00,
+          "notional_currency": "USD",
+          "observation_start_date": "2024-01-02",
+          "observation_end_date": "2025-01-02",
+          "valuation_time": "16:00:00"
+        }
+      },
+      {
+        "payout_id": "PAY002", 
+        "payout_type": "INTEREST_RATE",
+        "payer_party_id": "PARTY002",
+        "receiver_party_id": "PARTY001",
+        "payment_frequency": "QUARTERLY",
+        "currency": "USD",
+        "interest_rate": "SOFR + 50 bps",
+        "day_count_fraction": "ACT/360"
+      }
+    ],
+    "trade": {
+      "trade_id": "TRD001",
+      "product_id": "PROD001", 
+      "trade_date": "2024-01-02",
+      "trade_time": "2024-01-02T14:30:00Z",
+      "status": "ACTIVE",
+      "confirmation_method": "ELECTRONIC"
+    },
+    "party_roles": [
+      {
+        "party_role_id": "PR001",
+        "trade_id": "TRD001",
+        "party_id": "PARTY001",
+        "role_type": "COUNTERPARTY_1",
+        "effective_date": "2024-01-02"
+      },
+      {
+        "party_role_id": "PR002", 
+        "trade_id": "TRD001",
+        "party_id": "PARTY002",
+        "role_type": "COUNTERPARTY_2",
+        "effective_date": "2024-01-02"
+      },
+      {
+        "party_role_id": "PR003",
+        "trade_id": "TRD001", 
+        "party_id": "PARTY001",
+        "role_type": "CALCULATION_AGENT",
+        "effective_date": "2024-01-02"
+      }
+    ]
+  },
+  "lifecycle_events": [
+    {
+      "event_id": "EVT001",
+      "event_type": "EXECUTION",
+      "event_date": "2024-01-02",
+      "description": "Initial trade execution",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT004",
+      "event_type": "CONFIRMATION", 
+      "event_date": "2024-01-03",
+      "effective_date": "2024-01-02",
+      "description": "Trade confirmation received",
+      "processing_status": "PROCESSED"
+    },
+    {
+      "event_id": "EVT008",
+      "event_type": "RESET",
+      "event_date": "2024-04-02",
+      "effective_date": "2024-04-02", 
+      "description": "Quarterly performance reset and payment",
+      "processing_status": "PROCESSED"
+    }
+  ],
+  "price_observations": [
+    {
+      "observation_id": "OBS001",
+      "observation_date": "2024-01-02", 
+      "observation_time": "16:00:00",
+      "observed_price": 180.50,
+      "observation_type": "CLOSING_PRICE",
+      "source": "NASDAQ",
+      "description": "Initial fixing price"
+    },
+    {
+      "observation_id": "OBS002",
+      "observation_date": "2024-01-03",
+      "observation_time": "16:00:00", 
+      "observed_price": 182.25,
+      "observation_type": "CLOSING_PRICE",
+      "source": "NASDAQ"
+    },
+    {
+      "observation_id": "OBS005",
+      "observation_date": "2024-02-15",
+      "observation_time": "09:00:00",
+      "observed_price": 0.24,
+      "observation_type": "DIVIDEND",
+      "source": "NASDAQ",
+      "description": "Quarterly dividend payment"
+    }
+  ],
+  "valuations": [
+    {
+      "valuation_id": "VAL001",
+      "valuation_date": "2024-01-02",
+      "valuation_type": "MARK_TO_MARKET",
+      "base_currency": "USD",
+      "market_value": 10000000.00,
+      "unrealized_pnl": 0.00,
+      "daily_pnl": 0.00,
+      "delta": 1.0,
+      "description": "Initial valuation at trade inception"
+    },
+    {
+      "valuation_id": "VAL002",
+      "valuation_date": "2024-01-03", 
+      "valuation_type": "MARK_TO_MARKET",
+      "base_currency": "USD",
+      "market_value": 10096984.00,
+      "unrealized_pnl": 96984.00,
+      "daily_pnl": 96984.00,
+      "delta": 1.0,
+      "description": "Daily mark-to-market valuation"
+    }
+  ],
+  "settlements": [
+    {
+      "settlement_id": "SET001",
+      "settlement_date": "2024-02-20",
+      "settlement_type": "CASH",
+      "settlement_amount": 13307.20,
+      "settlement_currency": "USD",
+      "payer_party_id": "PARTY001",
+      "receiver_party_id": "PARTY002",
+      "payment_method": "WIRE",
+      "settlement_status": "SETTLED",
+      "description": "Dividend equivalent payment for Q1 2024 Apple dividend"
+    },
+    {
+      "settlement_id": "SET003",
+      "settlement_date": "2024-04-05",
+      "settlement_type": "NET_CASH", 
+      "settlement_amount": 245680.00,
+      "settlement_currency": "USD",
+      "payer_party_id": "PARTY002",
+      "receiver_party_id": "PARTY001",
+      "payment_method": "BOOK_TRANSFER",
+      "settlement_status": "SETTLED",
+      "description": "Q1 2024 quarterly net settlement - equity performance vs interest"
+    }
+  ],
+  "collateral": [
+    {
+      "collateral_id": "COL001",
+      "collateral_type": "CASH",
+      "collateral_amount": 500000.00,
+      "collateral_currency": "USD", 
+      "posting_party_id": "PARTY002",
+      "receiving_party_id": "PARTY001",
+      "posting_date": "2024-01-02",
+      "haircut_percentage": 0.00,
+      "collateral_value": 500000.00,
+      "status": "POSTED",
+      "custodian": "BNY Mellon",
+      "description": "Initial margin posting by BlackRock"
+    }
+  ],
+  "business_logic": {
+    "equity_performance_calculation": {
+      "formula": "Performance = (Current_Price - Initial_Price) / Initial_Price",
+      "dividend_treatment": "Dividends are passed through to the equity receiver",
+      "corporate_actions": "Standard adjustments for stock splits, spin-offs, mergers"
+    },
+    "interest_rate_calculation": {
+      "floating_rate": "SOFR (Secured Overnight Financing Rate)",
+      "spread": "50 basis points",
+      "day_count": "ACT/360",
+      "payment_frequency": "Quarterly"
+    },
+    "settlement_mechanics": {
+      "net_settlement": "Quarterly net cash settlement of equity performance vs interest",
+      "dividend_payments": "Separate cash payments on ex-dividend dates",
+      "currency": "All payments in USD"
+    }
+  },
+  "regulatory_aspects": {
+    "reporting_requirements": {
+      "dodd_frank": "US swap reporting to CFTC",
+      "emir": "EU reporting to trade repositories", 
+      "mifid_ii": "Transaction reporting requirements"
+    },
+    "margin_requirements": {
+      "initial_margin": "Posted based on ISDA SIMM methodology",
+      "variation_margin": "Daily exchange based on mark-to-market",
+      "minimum_transfer_amount": "$100,000"
+    },
+    "capital_requirements": {
+      "basel_iii": "Capital charges for counterparty credit risk",
+      "cva": "Credit valuation adjustment calculations"
+    }
+  },
+  "risk_management": {
+    "market_risks": [
+      "Equity price risk - sensitivity to Apple stock price movements",
+      "Interest rate risk - sensitivity to SOFR rate changes", 
+      "Dividend risk - uncertainty in dividend payments"
+    ],
+    "credit_risks": [
+      "Counterparty default risk",
+      "Settlement risk",
+      "Collateral adequacy risk"
+    ],
+    "operational_risks": [
+      "Trade processing errors",
+      "Valuation model risk",
+      "Data quality issues"
+    ]
+  },
+  "integration_points": {
+    "market_data": [
+      "Real-time Apple stock prices from NASDAQ",
+      "SOFR rates from Federal Reserve",
+      "Dividend announcements and ex-dividend dates"
+    ],
+    "settlement_systems": [
+      "SWIFT for payment instructions",
+      "DTC for securities settlement",
+      "Tri-party collateral management"
+    ],
+    "regulatory_reporting": [
+      "CFTC swap data repositories",
+      "ESMA trade repositories", 
+      "National competent authorities"
+    ]
+  }
+}
