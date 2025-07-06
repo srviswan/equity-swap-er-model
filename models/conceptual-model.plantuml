@@ -266,18 +266,70 @@ ENTITY(Collateral, Collateral) {
 }
 
 ' =============================================================================
+' CROSS-CURRENCY ENTITIES
+' =============================================================================
+
+ENTITY(FXRate, Reference) {
+  PRIMARY_KEY(fx_rate_id) : VARCHAR(50)
+  --
+  base_currency : CHAR(3)
+  quote_currency : CHAR(3)
+  rate_date : DATE
+  rate_time : TIME
+  rate_value : DECIMAL(15,8)
+  rate_source : VARCHAR(100)
+  rate_type : VARCHAR(20)
+  forward_date : DATE
+  is_active : BOOLEAN
+  created_date : DATE
+  last_updated : TIMESTAMP
+}
+
+ENTITY(CurrencyPair, Reference) {
+  PRIMARY_KEY(currency_pair_id) : VARCHAR(50)
+  --
+  base_currency : CHAR(3)
+  quote_currency : CHAR(3)
+  pair_code : CHAR(6)
+  market_convention : VARCHAR(100)
+  spot_days : INTEGER
+  tick_size : DECIMAL(10,8)
+  is_active : BOOLEAN
+  created_date : DATE
+}
+
+ENTITY(FXResetEvent, Event) {
+  PRIMARY_KEY(fx_reset_id) : VARCHAR(50)
+  --
+  FOREIGN_KEY(trade_id) : VARCHAR(50)
+  FOREIGN_KEY(payout_id) : VARCHAR(50)
+  reset_date : DATE
+  reset_time : TIME
+  base_currency : CHAR(3)
+  quote_currency : CHAR(3)
+  fx_rate : DECIMAL(15,8)
+  fx_rate_source : VARCHAR(100)
+  reset_type : VARCHAR(20)
+  reset_status : VARCHAR(20)
+  payment_date : DATE
+  created_date : DATE
+  last_updated : TIMESTAMP
+}
+
+' =============================================================================
 ' AUDIT AND DATA QUALITY ENTITIES
 ' =============================================================================
 
-ENTITY(DataQualityRule, Audit) {
+ENTITY(DataQualityRule, Control) {
   PRIMARY_KEY(rule_id) : VARCHAR(50)
   --
-  rule_name : VARCHAR(200)
-  entity_name : VARCHAR(100)
-  rule_type : VARCHAR(30)
+  rule_name : VARCHAR(100)
+  rule_description : TEXT
+  entity_type : VARCHAR(50)
+  field_name : VARCHAR(50)
+  rule_type : VARCHAR(20)
   rule_expression : TEXT
-  error_message : TEXT
-  severity : VARCHAR(10)
+  severity_level : VARCHAR(10)
   is_active : BOOLEAN
   created_date : DATE
 }
@@ -337,6 +389,12 @@ Party ||--o{ Settlement : "payer"
 Party ||--o{ Settlement : "receiver"
 Party ||--o{ Collateral : "posting party"
 Party ||--o{ Collateral : "receiving party"
+
+' Cross-Currency Relationships
+CurrencyPair ||--o{ FXRate : "rates for pair"
+Trade ||--o{ FXResetEvent : "fx resets"
+Payout ||--o{ FXResetEvent : "fx resets"
+FXRate ||--o{ FXResetEvent : "rate source"
 
 ' =============================================================================
 ' LEGEND AND NOTES

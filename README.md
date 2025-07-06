@@ -28,6 +28,7 @@ The equity swap management system ER model supports:
    - Price Return Basic Performance (Single Name, Index, Basket)
    - Total Return Basic Performance (Single Name, Index, Basket)
    - Parameter Return (Variance, Volatility, Dispersion)
+   - Cross-Currency Swaps with FX reset mechanisms
 
 3. **Party and Role Management**
    - Counterparty identification
@@ -56,8 +57,11 @@ equity-swap-er-model/
 │   ├── conceptual-model.plantuml  # PlantUML ER diagram
 │   └── logical-model.json      # JSON representation
 └── examples/
-    ├── equity-swap-samples.json   # Sample equity swap data
-    └── use-cases.md              # Common use cases
+    ├── apple-total-return-swap.json      # Single-name total return swap
+    ├── tech-basket-variance-swap.json    # Multi-stock variance swap
+    ├── sp500-price-return-swap.json      # Index-based price return swap
+    ├── cross-currency-nikkei-swap.json   # Cross-currency international swap
+    └── use-cases.md                     # Common use cases
 ```
 
 ## Getting Started
@@ -77,6 +81,34 @@ The ER model can be implemented in various database systems:
 
 See the `sql/` directory for implementation scripts.
 
+## Cross-Currency Features
+
+The model includes comprehensive support for cross-currency equity swaps:
+
+### FX Rate Management
+- **FXRate Entity**: Tracks exchange rates with multiple sources and types
+- **CurrencyPair Entity**: Defines market conventions for currency pairs
+- **Rate Types**: Support for SPOT, FORWARD, IMPLIED, and FIXING rates
+- **Historical Rates**: Complete audit trail of rate changes
+
+### FX Reset Mechanisms
+- **FXResetEvent Entity**: Manages FX fixing events and reset schedules
+- **Reset Types**: INITIAL, PERIODIC, FINAL, and BARRIER resets
+- **Reset Status**: Tracking from PENDING to FIXED or FAILED
+- **Multiple Frequencies**: Daily, weekly, monthly, quarterly, and custom schedules
+
+### Cross-Currency Payout Support
+- **Multi-Currency Settlements**: Different currencies for calculation and settlement
+- **FX Reset Required**: Automatic identification of FX-dependent payouts
+- **Rate Source Configuration**: Configurable rate sources (WM/Reuters, ECB, etc.)
+- **Fixing Time Management**: Precise timing for rate fixings
+
+### Example Use Cases
+- **Nikkei 225 JPY/USD Swap**: Japanese equity with USD settlement
+- **European Equity EUR/USD Swap**: Euro-denominated equity with USD settlement
+- **Multi-Currency Baskets**: Baskets with mixed currency exposures
+- **Currency Hedged Swaps**: Equity exposure with FX hedging components
+
 ## Integration
 
 This ER model is designed to integrate with:
@@ -84,6 +116,7 @@ This ER model is designed to integrate with:
 - Risk management platforms
 - Trading systems
 - Regulatory reporting tools
+- FX rate providers (Bloomberg, Reuters, ECB)
 
 ## License
 

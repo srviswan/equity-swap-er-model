@@ -7,9 +7,11 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 ## Key Achievements
 
 ### 1. **Comprehensive ER Model Design**
-- **17 core entities** covering all aspects of equity swap management
-- **Based on CDM Rosetta specification** ensuring industry standard compliance
-- **Supports all equity swap types**: Price Return, Total Return, Variance, and Volatility swaps
+- **20 core entities** covering complete equity swap lifecycle
+- **4 equity swap types** supported: Price Return, Total Return, Variance, Volatility
+- **Cross-currency functionality** with FX rate management and reset mechanisms
+- **Complete FINOS CDM alignment** ensuring industry standard compliance
+- **Production-ready architecture** with full referential integrity
 - **Flexible architecture** supporting single name, basket, and index underliers
 
 ### 2. **Complete Documentation Suite**
@@ -25,10 +27,19 @@ This project provides a comprehensive Entity-Relationship (ER) model for managin
 - **Comprehensive indexing strategy** for optimal query performance
 - **Data integrity controls** with check constraints and foreign key references
 
-### 4. **Real-World Examples**
-- **examples/apple-total-return-swap.json**: Complete use case example
-- **Demonstrates practical implementation** of complex equity swap structures
-- **Shows integration points** with market data, settlement systems, and regulatory reporting
+### 4. **Real-World Use Case Examples**
+- **Apple Total Return Swap**: Comprehensive single-name equity swap
+- **Technology Basket Variance Swap**: Multi-stock basket variance swap
+- **S&P 500 Price Return Swap**: Large-scale index-based swap
+- **Cross-Currency Nikkei Swap**: International equity swap with FX features
+- **JSON format examples** with complete trade lifecycle data
+
+### 5. **Cross-Currency Capabilities**
+- **FX Rate Management**: Comprehensive foreign exchange rate tracking
+- **Currency Pair Definitions**: Standard market conventions and configurations
+- **FX Reset Events**: Automated fixing and reset mechanisms
+- **Multi-Currency Settlements**: Support for different settlement currencies
+- **International Trade Support**: JPY/USD, EUR/USD, and other major pairs
 
 ## Technical Architecture
 

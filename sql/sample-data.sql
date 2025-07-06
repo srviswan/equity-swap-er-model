@@ -171,6 +171,32 @@ INSERT INTO Valuation (valuation_id, trade_id, valuation_date, valuation_type, b
 ('VAL007', 'TRD002', '2024-01-04', 'MARK_TO_MARKET', 'USD', 4998134.00, -1866.00, -19188.00, 1.0, 'RISK_SYSTEM');
 
 -- =============================================================================
+-- CROSS-CURRENCY SAMPLE DATA
+-- =============================================================================
+
+-- Currency Pair Sample Data
+INSERT INTO CurrencyPair (currency_pair_id, base_currency, quote_currency, pair_code, market_convention, spot_days, tick_size, is_active, created_date) VALUES
+('EURUSD-PAIR', 'EUR', 'USD', 'EURUSD', 'London 4PM Fix', 2, 0.00001, TRUE, '2024-01-01'),
+('USDJPY-PAIR', 'USD', 'JPY', 'USDJPY', 'Tokyo 3PM Fix', 2, 0.001, TRUE, '2024-01-01'),
+('GBPUSD-PAIR', 'GBP', 'USD', 'GBPUSD', 'London 4PM Fix', 2, 0.00001, TRUE, '2024-01-01'),
+('USDCHF-PAIR', 'USD', 'CHF', 'USDCHF', 'Zurich Close', 2, 0.00001, TRUE, '2024-01-01');
+
+-- FX Rate Sample Data
+INSERT INTO FXRate (fx_rate_id, base_currency, quote_currency, rate_date, rate_time, rate_value, rate_source, rate_type, is_active, created_date) VALUES
+('EUR-USD-20240115', 'EUR', 'USD', '2024-01-15', '16:00:00', 1.0890, 'WM/Reuters', 'FIXING', TRUE, '2024-01-15'),
+('USD-JPY-20240115', 'USD', 'JPY', '2024-01-15', '15:00:00', 148.50, 'WM/Reuters', 'FIXING', TRUE, '2024-01-15'),
+('GBP-USD-20240115', 'GBP', 'USD', '2024-01-15', '16:00:00', 1.2750, 'WM/Reuters', 'FIXING', TRUE, '2024-01-15'),
+('EUR-USD-20240415', 'EUR', 'USD', '2024-04-15', '16:00:00', 1.0745, 'WM/Reuters', 'FIXING', TRUE, '2024-04-15'),
+('USD-JPY-20240415', 'USD', 'JPY', '2024-04-15', '15:00:00', 150.25, 'WM/Reuters', 'FIXING', TRUE, '2024-04-15'),
+('GBP-USD-20240415', 'GBP', 'USD', '2024-04-15', '16:00:00', 1.2580, 'WM/Reuters', 'FIXING', TRUE, '2024-04-15');
+
+-- FX Reset Event Sample Data
+INSERT INTO FXResetEvent (fx_reset_id, trade_id, payout_id, reset_date, reset_time, base_currency, quote_currency, fx_rate, fx_rate_source, reset_type, reset_status, payment_date, created_date) VALUES
+('FX-RST-001', 'EQS-APPL-001', 'EQUITY-LEG-001', '2024-04-15', '16:00:00', 'EUR', 'USD', 1.0745, 'WM/Reuters', 'PERIODIC', 'FIXED', '2024-04-17', '2024-04-15'),
+('FX-RST-002', 'EQS-NIKKEI-001', 'EQUITY-LEG-002', '2024-04-15', '15:00:00', 'USD', 'JPY', 150.25, 'WM/Reuters', 'PERIODIC', 'FIXED', '2024-04-17', '2024-04-15'),
+('FX-RST-003', 'EQS-APPL-001', 'EQUITY-LEG-001', '2024-07-15', '16:00:00', 'EUR', 'USD', 1.0820, 'WM/Reuters', 'PERIODIC', 'PENDING', '2024-07-17', '2024-07-15');
+
+-- =============================================================================
 -- SETTLEMENTS
 -- =============================================================================
 

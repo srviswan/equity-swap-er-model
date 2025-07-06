@@ -1,0 +1,296 @@
+{
+  "tradeHeader": {
+    "tradeId": "XC-NIKKEI-2024-001",
+    "tradeDate": "2024-01-15",
+    "tradeTime": "14:30:00+09:00",
+    "executionVenue": "OTC",
+    "description": "Cross-Currency Nikkei 225 Total Return Swap - JPY underlying, USD settlement"
+  },
+  "parties": [
+    {
+      "partyId": "MUFG-TOKYO",
+      "partyName": "Mitsubishi UFJ Financial Group",
+      "partyType": "BANK",
+      "leiCode": "549300GKFG0RYRRQ1414",
+      "countryOfIncorporation": "JP",
+      "role": "COUNTERPARTY_1"
+    },
+    {
+      "partyId": "JPMORGAN-NYC",
+      "partyName": "J.P. Morgan Securities LLC",
+      "partyType": "INVESTMENT_BANK",
+      "leiCode": "ZBUT11V806EZRVTWC268",
+      "countryOfIncorporation": "US",
+      "role": "COUNTERPARTY_2"
+    }
+  ],
+  "underlier": {
+    "underlierId": "NIKKEI-225",
+    "underlieName": "Nikkei Stock Average 225",
+    "underlieerType": "INDEX",
+    "assetClass": "EQUITY",
+    "currency": "JPY",
+    "country": "JP",
+    "identifiers": {
+      "bloomberg": "NKY Index",
+      "reuters": ".N225",
+      "isin": "XC0000000000"
+    },
+    "exchangeCode": "TSE",
+    "multiplier": 1000
+  },
+  "economicTerms": {
+    "effectiveDate": "2024-01-17",
+    "terminationDate": "2025-01-17",
+    "notionalAmount": 100000000,
+    "notionalCurrency": "JPY",
+    "settlementCurrency": "USD",
+    "calculationAgent": "MUFG-TOKYO",
+    "businessDayConvention": "MODIFIED_FOLLOWING",
+    "businessCenters": ["TOKYO", "NEW_YORK"]
+  },
+  "payouts": [
+    {
+      "payoutId": "EQUITY-LEG",
+      "payoutType": "PERFORMANCE",
+      "payerPartyId": "MUFG-TOKYO",
+      "receiverPartyId": "JPMORGAN-NYC",
+      "paymentFrequency": "QUARTERLY",
+      "currency": "JPY",
+      "settlementCurrency": "USD",
+      "fxResetRequired": true,
+      "fxResetFrequency": "QUARTERLY",
+      "fxRateSource": "WM/Reuters",
+      "fxFixingTime": "15:00:00+00:00",
+      "performanceDetails": {
+        "returnType": "TOTAL_RETURN",
+        "dividendTreatment": "PASS_THROUGH",
+        "observationStartDate": "2024-01-17",
+        "observationEndDate": "2025-01-17",
+        "initialPrice": 33750.00,
+        "priceSource": "TOKYO_STOCK_EXCHANGE"
+      }
+    },
+    {
+      "payoutId": "FUNDING-LEG",
+      "payoutType": "INTEREST_RATE",
+      "payerPartyId": "JPMORGAN-NYC",
+      "receiverPartyId": "MUFG-TOKYO",
+      "paymentFrequency": "QUARTERLY",
+      "currency": "USD",
+      "dayCountFraction": "ACT/360",
+      "interestRateDetails": {
+        "rateType": "FLOATING",
+        "benchmark": "USD-SOFR",
+        "spread": 0.0150,
+        "resetFrequency": "DAILY"
+      }
+    }
+  ],
+  "crossCurrencyFeatures": {
+    "baseCurrency": "JPY",
+    "settlementCurrency": "USD",
+    "currencyPair": {
+      "currencyPairId": "USDJPY",
+      "baseCurrency": "USD",
+      "quoteCurrency": "JPY",
+      "pairCode": "USDJPY",
+      "marketConvention": "Tokyo market close",
+      "spotDays": 2
+    },
+    "fxResetSchedule": [
+      {
+        "resetDate": "2024-04-15",
+        "resetType": "PERIODIC",
+        "paymentDate": "2024-04-17"
+      },
+      {
+        "resetDate": "2024-07-15",
+        "resetType": "PERIODIC",
+        "paymentDate": "2024-07-17"
+      },
+      {
+        "resetDate": "2024-10-15",
+        "resetType": "PERIODIC",
+        "paymentDate": "2024-10-17"
+      },
+      {
+        "resetDate": "2025-01-15",
+        "resetType": "FINAL",
+        "paymentDate": "2025-01-17"
+      }
+    ]
+  },
+  "lifecycle": [
+    {
+      "eventId": "EXEC-001",
+      "eventType": "EXECUTION",
+      "eventDate": "2024-01-15",
+      "description": "Trade executed and confirmed",
+      "status": "CONFIRMED"
+    },
+    {
+      "eventId": "FX-RST-001",
+      "eventType": "FX_RESET",
+      "eventDate": "2024-04-15",
+      "description": "Quarterly FX reset - USD/JPY fixing",
+      "fxResetDetails": {
+        "baseCurrency": "USD",
+        "quoteCurrency": "JPY",
+        "fixingRate": 150.25,
+        "rateSource": "WM/Reuters 15:00 London",
+        "resetType": "PERIODIC"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "observationId": "NIKKEI-20240117",
+      "observationDate": "2024-01-17",
+      "underlierId": "NIKKEI-225",
+      "observedPrice": 33750.00,
+      "observationType": "CLOSING_PRICE",
+      "source": "TOKYO_STOCK_EXCHANGE"
+    },
+    {
+      "observationId": "NIKKEI-20240415",
+      "observationDate": "2024-04-15",
+      "underlierId": "NIKKEI-225",
+      "observedPrice": 35280.45,
+      "observationType": "CLOSING_PRICE",
+      "source": "TOKYO_STOCK_EXCHANGE"
+    }
+  ],
+  "fxRates": [
+    {
+      "fxRateId": "USDJPY-20240115",
+      "baseCurrency": "USD",
+      "quoteCurrency": "JPY",
+      "rateDate": "2024-01-15",
+      "rateTime": "15:00:00+00:00",
+      "rateValue": 148.50,
+      "rateSource": "WM/Reuters",
+      "rateType": "FIXING"
+    },
+    {
+      "fxRateId": "USDJPY-20240415",
+      "baseCurrency": "USD",
+      "quoteCurrency": "JPY",
+      "rateDate": "2024-04-15",
+      "rateTime": "15:00:00+00:00",
+      "rateValue": 150.25,
+      "rateSource": "WM/Reuters",
+      "rateType": "FIXING"
+    }
+  ],
+  "valuations": [
+    {
+      "valuationId": "VAL-20240415",
+      "tradeId": "XC-NIKKEI-2024-001",
+      "valuationDate": "2024-04-15",
+      "valuationType": "MARK_TO_MARKET",
+      "baseCurrency": "USD",
+      "marketValue": 103750.84,
+      "unrealizedPnl": 3750.84,
+      "fxAdjustment": -2150.00,
+      "breakdown": {
+        "equityLegValue": 105900.84,
+        "fundingLegValue": -2150.00,
+        "fxImpact": -2150.00,
+        "calculations": {
+          "nikkeiPerformance": 0.0453,
+          "jpyPnl": 4535000,
+          "usdEquivalent": 30183.95,
+          "fxConversionRate": 150.25
+        }
+      }
+    }
+  ],
+  "settlements": [
+    {
+      "settlementId": "SETTLE-Q1-2024",
+      "tradeId": "XC-NIKKEI-2024-001",
+      "settlementDate": "2024-04-17",
+      "settlementType": "NET_CASH",
+      "currency": "USD",
+      "grossAmount": 30183.95,
+      "netAmount": 28033.95,
+      "payerPartyId": "MUFG-TOKYO",
+      "receiverPartyId": "JPMORGAN-NYC",
+      "settlementStatus": "SETTLED",
+      "fxDetails": {
+        "originalCurrency": "JPY",
+        "originalAmount": 4535000,
+        "fxRate": 150.25,
+        "convertedAmount": 30183.95,
+        "fxSource": "WM/Reuters"
+      }
+    }
+  ],
+  "collateral": [
+    {
+      "collateralId": "COLL-INITIAL",
+      "tradeId": "XC-NIKKEI-2024-001",
+      "collateralType": "INITIAL_MARGIN",
+      "postingPartyId": "JPMORGAN-NYC",
+      "receivingPartyId": "MUFG-TOKYO",
+      "currency": "USD",
+      "amount": 500000,
+      "postingDate": "2024-01-17",
+      "collateralAsset": "US_TREASURY_BONDS",
+      "haircut": 0.02
+    }
+  ],
+  "riskMetrics": {
+    "delta": 0.9850,
+    "gamma": 0.0001,
+    "vega": 150.25,
+    "theta": -12.50,
+    "fxDelta": -0.6720,
+    "fxGamma": 0.0002,
+    "var95": 45250.00,
+    "expectedShortfall": 62180.00,
+    "stressScenarios": {
+      "nikkei_down_10pct": -67350.00,
+      "usdjpy_up_5pct": -15080.50,
+      "combined_stress": -82430.50
+    }
+  },
+  "regulatory": {
+    "reportingRegime": ["CFTC", "JFSA"],
+    "clearingStatus": "UNCLEARED",
+    "marginRequirement": {
+      "initialMargin": 500000,
+      "variationMargin": 28033.95,
+      "currency": "USD"
+    },
+    "riskWeighting": {
+      "basell_iii_sa": 0.85,
+      "counterparty_credit_risk": 0.12
+    }
+  },
+  "businessLogic": {
+    "priceObservationRules": {
+      "frequency": "DAILY",
+      "source": "TOKYO_STOCK_EXCHANGE",
+      "marketDisruptionHandling": "POSTPONEMENT"
+    },
+    "fxResetRules": {
+      "frequency": "QUARTERLY",
+      "source": "WM/Reuters",
+      "fixingTime": "15:00 London",
+      "fallbackSource": "ECB",
+      "disruption": "FALLBACK_REFERENCE_DEALERS"
+    },
+    "settlementRules": {
+      "paymentLag": 2,
+      "currency": "USD",
+      "minimumTransferAmount": 1000
+    },
+    "corporateActionHandling": {
+      "dividends": "PASS_THROUGH",
+      "stockSplits": "PROPORTIONAL_ADJUSTMENT",
+      "mergers": "CASH_SETTLEMENT"
+    }
+  }
+}

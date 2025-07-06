@@ -298,6 +298,73 @@ Defines data quality validation rules for the system.
 - `is_active` BOOLEAN DEFAULT TRUE
 - `created_date` DATE NOT NULL
 
+### FXRate
+Manages foreign exchange rates for cross-currency equity swaps.
+
+**Attributes:**
+- `fx_rate_id` VARCHAR(50) PRIMARY KEY
+- `base_currency` CHAR(3) NOT NULL - Base currency (3-letter ISO code)
+- `quote_currency` CHAR(3) NOT NULL - Quote currency (3-letter ISO code)
+- `rate_date` DATE NOT NULL - Date of the rate
+- `rate_time` TIME - Time of the rate (optional)
+- `rate_value` DECIMAL(18,6) NOT NULL - Exchange rate value
+- `rate_source` VARCHAR(100) NOT NULL - Source of the rate (e.g., 'WM/Reuters')
+- `rate_type` ENUM('SPOT', 'FORWARD', 'IMPLIED', 'FIXING') - Type of rate
+- `forward_date` DATE - Forward date for forward rates
+- `is_active` BOOLEAN DEFAULT TRUE - Whether the rate is active
+
+**Business Rules:**
+- Unique combination of base/quote currency, date, and time
+- Base and quote currencies must be different
+- Rate value must be positive
+- Support for both spot and forward rates
+- Historical rate preservation for audit trails
+
+### CurrencyPair
+Defines currency pair configurations and market conventions.
+
+**Attributes:**
+- `currency_pair_id` VARCHAR(50) PRIMARY KEY
+- `base_currency` CHAR(3) NOT NULL - Base currency (3-letter ISO code)
+- `quote_currency` CHAR(3) NOT NULL - Quote currency (3-letter ISO code)
+- `pair_code` VARCHAR(6) NOT NULL - Standard 6-character pair code (e.g., 'EURUSD')
+- `market_convention` TEXT NOT NULL - Market convention description
+- `spot_days` INTEGER NOT NULL - Standard settlement days for spot transactions
+- `tick_size` DECIMAL(18,6) NOT NULL - Minimum price movement
+- `is_active` BOOLEAN DEFAULT TRUE - Whether the pair is actively traded
+
+**Business Rules:**
+- Unique combination of base and quote currencies
+- Pair code must be unique across all pairs
+- Base and quote currencies must be different
+- Market convention defines fixing times and sources
+- Tick size defines precision for rate quotations
+
+### FXResetEvent
+Tracks FX rate reset/fixing events for cross-currency payouts.
+
+**Attributes:**
+- `fx_reset_id` VARCHAR(50) PRIMARY KEY
+- `trade_id` VARCHAR(50) NOT NULL - Associated trade identifier
+- `payout_id` VARCHAR(50) NOT NULL - Associated payout identifier
+- `reset_date` DATE NOT NULL - Date of the FX reset
+- `reset_time` TIME NOT NULL - Time of the FX reset
+- `base_currency` CHAR(3) NOT NULL - Base currency for the reset
+- `quote_currency` CHAR(3) NOT NULL - Quote currency for the reset
+- `fx_rate` DECIMAL(18,6) NOT NULL - Fixed exchange rate
+- `fx_rate_source` VARCHAR(100) NOT NULL - Source of the FX rate
+- `reset_type` ENUM('INITIAL', 'PERIODIC', 'FINAL', 'BARRIER') - Type of reset
+- `reset_status` ENUM('PENDING', 'FIXED', 'FAILED') - Status of the reset
+- `payment_date` DATE NOT NULL - Associated payment date
+
+**Business Rules:**
+- Links to specific trade and payout
+- Base and quote currencies must be different
+- Reset type determines the purpose of the fixing
+- Status tracks the lifecycle of the reset event
+- Payment date determines when the fixed rate is applied
+- Supports multiple reset types for different scenarios
+
 ### AuditLog
 Comprehensive audit trail for all system changes.
 

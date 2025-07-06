@@ -114,6 +114,12 @@ CREATE TABLE Payout (
         'DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY', 'AT_MATURITY')),
     day_count_fraction VARCHAR(10) CHECK (day_count_fraction IN ('30/360', 'ACT/360', 'ACT/365', 'ACT/ACT')),
     currency CHAR(3) NOT NULL,
+    settlement_currency CHAR(3),
+    fx_reset_required BOOLEAN DEFAULT FALSE,
+    fx_reset_frequency VARCHAR(20) CHECK (fx_reset_frequency IN (
+        'DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY', 'AT_PAYMENT')),
+    fx_rate_source VARCHAR(100),
+    fx_fixing_time TIME,
     CONSTRAINT fk_payout_economic_terms 
         FOREIGN KEY (economic_terms_id) REFERENCES EconomicTerms(economic_terms_id),
     CONSTRAINT fk_payout_payer 
@@ -384,6 +390,81 @@ CREATE TABLE AuditLog (
 );
 
 -- =============================================================================
+-- CROSS-CURRENCY SUPPORT ENTITIES
+-- =============================================================================
+
+-- FX Rate Entity for managing currency exchange rates
+CREATE TABLE FXRate (
+    fx_rate_id VARCHAR(50) PRIMARY KEY,
+    base_currency CHAR(3) NOT NULL,
+    quote_currency CHAR(3) NOT NULL,
+    rate_date DATE NOT NULL,
+    rate_time TIME,
+    rate_value DECIMAL(15,8) NOT NULL,
+    rate_source VARCHAR(100),
+    rate_type VARCHAR(20) CHECK (rate_type IN ('SPOT', 'FORWARD', 'IMPLIED', 'FIXING')),
+    forward_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_date DATE DEFAULT CURRENT_DATE,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT uk_fx_rate_unique UNIQUE (base_currency, quote_currency, rate_date, rate_time),
+    CONSTRAINT chk_fx_currencies CHECK (base_currency != quote_currency),
+    CONSTRAINT chk_fx_rate_positive CHECK (rate_value > 0)
+);
+
+COMMENT ON TABLE FXRate IS 'Foreign exchange rates for cross-currency calculations';
+COMMENT ON COLUMN FXRate.base_currency IS 'Base currency (e.g., EUR in EUR/USD)';
+COMMENT ON COLUMN FXRate.quote_currency IS 'Quote currency (e.g., USD in EUR/USD)';
+COMMENT ON COLUMN FXRate.rate_value IS 'Exchange rate (units of quote currency per unit of base currency)';
+
+-- Currency Pair Entity for managing currency pair definitions
+CREATE TABLE CurrencyPair (
+    currency_pair_id VARCHAR(50) PRIMARY KEY,
+    base_currency CHAR(3) NOT NULL,
+    quote_currency CHAR(3) NOT NULL,
+    pair_code CHAR(6) NOT NULL,
+    market_convention VARCHAR(100),
+    spot_days INTEGER DEFAULT 2,
+    tick_size DECIMAL(10,8),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_date DATE DEFAULT CURRENT_DATE,
+    
+    CONSTRAINT uk_currency_pair UNIQUE (base_currency, quote_currency),
+    CONSTRAINT uk_pair_code UNIQUE (pair_code),
+    CONSTRAINT chk_curr_pair_currencies CHECK (base_currency != quote_currency)
+);
+
+COMMENT ON TABLE CurrencyPair IS 'Currency pair definitions for FX rate management';
+COMMENT ON COLUMN CurrencyPair.pair_code IS 'Standard 6-character currency pair code (e.g., EURUSD)';
+COMMENT ON COLUMN CurrencyPair.spot_days IS 'Standard settlement days for spot transactions';
+
+-- FX Reset Event Entity for tracking FX fixing events
+CREATE TABLE FXResetEvent (
+    fx_reset_id VARCHAR(50) PRIMARY KEY,
+    trade_id VARCHAR(50) NOT NULL,
+    payout_id VARCHAR(50) NOT NULL,
+    reset_date DATE NOT NULL,
+    reset_time TIME,
+    base_currency CHAR(3) NOT NULL,
+    quote_currency CHAR(3) NOT NULL,
+    fx_rate DECIMAL(15,8),
+    fx_rate_source VARCHAR(100),
+    reset_type VARCHAR(20) CHECK (reset_type IN ('INITIAL', 'PERIODIC', 'FINAL', 'BARRIER')),
+    reset_status VARCHAR(20) DEFAULT 'PENDING' CHECK (reset_status IN ('PENDING', 'FIXED', 'FAILED')),
+    payment_date DATE,
+    created_date DATE DEFAULT CURRENT_DATE,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_fx_reset_trade FOREIGN KEY (trade_id) REFERENCES Trade(trade_id),
+    CONSTRAINT fk_fx_reset_payout FOREIGN KEY (payout_id) REFERENCES Payout(payout_id),
+    CONSTRAINT chk_fx_reset_currencies CHECK (base_currency != quote_currency)
+);
+
+COMMENT ON TABLE FXResetEvent IS 'FX rate reset/fixing events for cross-currency payouts';
+COMMENT ON COLUMN FXResetEvent.reset_type IS 'Type of FX reset (initial fixing, periodic reset, etc.)';
+
+-- =============================================================================
 -- INDEXES FOR PERFORMANCE
 -- =============================================================================
 
@@ -411,6 +492,15 @@ CREATE INDEX idx_valuation_trade ON Valuation(trade_id);
 CREATE INDEX idx_settlement_date ON Settlement(settlement_date);
 CREATE INDEX idx_settlement_status ON Settlement(settlement_status);
 CREATE INDEX idx_collateral_posting_date ON Collateral(posting_date);
+
+-- Cross-currency indexes
+CREATE INDEX idx_fx_rate_currencies ON FXRate(base_currency, quote_currency);
+CREATE INDEX idx_fx_rate_date ON FXRate(rate_date);
+CREATE INDEX idx_fx_rate_source ON FXRate(rate_source);
+CREATE INDEX idx_currency_pair_code ON CurrencyPair(pair_code);
+CREATE INDEX idx_fx_reset_trade ON FXResetEvent(trade_id);
+CREATE INDEX idx_fx_reset_date ON FXResetEvent(reset_date);
+CREATE INDEX idx_fx_reset_currencies ON FXResetEvent(base_currency, quote_currency);
 
 -- Audit indexes
 CREATE INDEX idx_audit_table_record ON AuditLog(table_name, record_id);
