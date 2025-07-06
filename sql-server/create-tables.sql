@@ -107,7 +107,7 @@ CREATE TABLE EconomicTerms (
 CREATE TABLE Payout (
     payout_id VARCHAR(50) PRIMARY KEY,
     economic_terms_id VARCHAR(50) NOT NULL,
-    payout_type VARCHAR(20) NOT NULL CHECK (payout_type IN ('PERFORMANCE', 'INTEREST_RATE', 'FIXED')),
+    payout_type VARCHAR(20) NOT NULL CHECK (payout_type IN ('PERFORMANCE', 'INTEREST_RATE', 'DIVIDEND', 'FIXED')),
     payer_party_id VARCHAR(50) NOT NULL,
     receiver_party_id VARCHAR(50) NOT NULL,
     payment_frequency VARCHAR(20) CHECK (payment_frequency IN (
@@ -149,6 +149,74 @@ CREATE TABLE PerformancePayout (
         FOREIGN KEY (payout_id) REFERENCES Payout(payout_id) ON DELETE CASCADE,
     CONSTRAINT ck_performance_observation_dates 
         CHECK (observation_end_date IS NULL OR observation_end_date >= observation_start_date)
+);
+
+-- InterestRatePayout table - Interest rate leg payouts
+CREATE TABLE InterestRatePayout (
+    interest_payout_id VARCHAR(50) PRIMARY KEY,
+    payout_id VARCHAR(50) NOT NULL UNIQUE,
+    rate_type VARCHAR(20) NOT NULL CHECK (rate_type IN ('FIXED', 'FLOATING')),
+    fixed_rate DECIMAL(8,4), -- For fixed rate legs
+    floating_rate_index VARCHAR(50), -- e.g., 'USD-LIBOR-3M', 'SOFR'
+    spread DECIMAL(8,4) DEFAULT 0.0000, -- Spread over index in basis points
+    day_count_fraction VARCHAR(20) CHECK (day_count_fraction IN (
+        'ACT/360', 'ACT/365', '30/360', 'ACT/ACT')),
+    reset_frequency VARCHAR(20) CHECK (reset_frequency IN (
+        'DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY')),
+    compounding_method VARCHAR(20) CHECK (compounding_method IN (
+        'NONE', 'FLAT', 'STRAIGHT', 'SPREAD_EXCLUSIVE')),
+    notional_amount DECIMAL(18,2) NOT NULL CHECK (notional_amount > 0),
+    notional_currency CHAR(3) NOT NULL,
+    CONSTRAINT fk_interest_payout_base 
+        FOREIGN KEY (payout_id) REFERENCES Payout(payout_id) ON DELETE CASCADE,
+    CONSTRAINT ck_interest_rate_specification 
+        CHECK ((rate_type = 'FIXED' AND fixed_rate IS NOT NULL) OR 
+               (rate_type = 'FLOATING' AND floating_rate_index IS NOT NULL))
+);
+
+-- DividendPayout table - Dividend pass-through payouts
+CREATE TABLE DividendPayout (
+    dividend_payout_id VARCHAR(50) PRIMARY KEY,
+    payout_id VARCHAR(50) NOT NULL UNIQUE,
+    dividend_treatment VARCHAR(20) NOT NULL CHECK (dividend_treatment IN (
+        'PASS_THROUGH', 'REINVESTMENT', 'CASH_EQUIVALENT', 'NONE')),
+    dividend_percentage DECIMAL(5,2) DEFAULT 100.00 CHECK (dividend_percentage >= 0 AND dividend_percentage <= 100),
+    ex_dividend_treatment VARCHAR(20) CHECK (ex_dividend_treatment IN (
+        'PRICE_ADJUSTMENT', 'CASH_PAYMENT', 'REINVESTMENT')),
+    withholding_tax_rate DECIMAL(5,4) DEFAULT 0.0000,
+    minimum_dividend_amount DECIMAL(18,2) DEFAULT 0.00,
+    maximum_dividend_amount DECIMAL(18,2),
+    dividend_currency CHAR(3),
+    payment_delay_days INTEGER DEFAULT 0 CHECK (payment_delay_days >= 0),
+    CONSTRAINT fk_dividend_payout_base 
+        FOREIGN KEY (payout_id) REFERENCES Payout(payout_id) ON DELETE CASCADE
+);
+
+-- CashFlow table - Track actual cash flow events
+CREATE TABLE CashFlow (
+    cash_flow_id VARCHAR(50) PRIMARY KEY,
+    payout_id VARCHAR(50) NOT NULL,
+    trade_id VARCHAR(50) NOT NULL,
+    flow_type VARCHAR(30) NOT NULL CHECK (flow_type IN (
+        'EQUITY_PERFORMANCE', 'INTEREST_PAYMENT', 'DIVIDEND_PAYMENT', 
+        'PRINCIPAL_PAYMENT', 'FEE_PAYMENT', 'COLLATERAL_MOVEMENT')),
+    flow_direction VARCHAR(10) NOT NULL CHECK (flow_direction IN ('INFLOW', 'OUTFLOW')),
+    scheduled_date DATE NOT NULL,
+    actual_payment_date DATE,
+    currency CHAR(3) NOT NULL,
+    scheduled_amount DECIMAL(18,2) NOT NULL,
+    actual_amount DECIMAL(18,2),
+    calculation_details NVARCHAR(MAX), -- JSON with calculation breakdown
+    payment_status VARCHAR(20) DEFAULT 'SCHEDULED' CHECK (payment_status IN (
+        'SCHEDULED', 'CONFIRMED', 'PAID', 'FAILED', 'CANCELLED')),
+    reference_rate DECIMAL(8,6), -- For interest calculations
+    accrual_start_date DATE,
+    accrual_end_date DATE,
+    created_timestamp DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT fk_cash_flow_payout 
+        FOREIGN KEY (payout_id) REFERENCES Payout(payout_id),
+    CONSTRAINT fk_cash_flow_trade 
+        FOREIGN KEY (trade_id) REFERENCES Trade(trade_id)
 );
 
 -- Trade table - Core trade entity

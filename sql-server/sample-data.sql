@@ -67,20 +67,195 @@ INSERT INTO CounterpartyRole (counterparty_role_id, product_id, party_id, role_t
 ('CR006', 'PROD003', 'PARTY002', 'CLIENT', 'VARIANCE_RECEIVER');
 
 -- =============================================================================
--- PAYOUTS - EQUITY PERFORMANCE
+-- PAYOUTS - COMPREHENSIVE CASH FLOW MODELING
 -- =============================================================================
 
--- Sample performance payouts for different swap types
-INSERT INTO Payout (payout_id, product_id, payer_party_id, receiver_party_id, payout_type, payout_currency, payout_frequency, created_date) VALUES
-('PAY001', 'PROD001', 'PARTY001', 'PARTY002', 'EQUITY_PERFORMANCE', 'USD', 'QUARTERLY', '2024-01-01'),
-('PAY002', 'PROD002', 'PARTY004', 'PARTY003', 'EQUITY_PERFORMANCE', 'USD', 'MONTHLY', '2024-01-01'),
-('PAY003', 'PROD003', 'PARTY005', 'PARTY002', 'VARIANCE_PERFORMANCE', 'USD', 'MATURITY', '2024-01-01');
+-- Performance Payouts (Equity Return Leg)
+INSERT INTO Payout (payout_id, economic_terms_id, payer_party_id, receiver_party_id, payout_type, payment_frequency, settlement_currency, created_date) VALUES
+('PAY001', 'ET001', 'PARTY001', 'PARTY002', 'PERFORMANCE', 'QUARTERLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY002', 'ET002', 'PARTY004', 'PARTY003', 'PERFORMANCE', 'MONTHLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY003', 'ET003', 'PARTY005', 'PARTY002', 'PERFORMANCE', 'QUARTERLY', 'USD', CAST(GETDATE() AS DATE));
 
--- Performance payout details
-INSERT INTO PerformancePayout (performance_payout_id, payout_id, return_type, initial_price, initial_price_date, notional_amount, notional_currency, observation_start_date, observation_end_date) VALUES
-('PP001', 'PAY001', 'TOTAL_RETURN', 180.50, '2024-01-02', 10000000.00, 'USD', '2024-01-02', '2024-12-31'),
-('PP002', 'PAY002', 'PRICE_RETURN', 420.25, '2024-01-02', 5000000.00, 'USD', '2024-01-02', '2024-06-30'),
-('PP003', 'PAY003', 'VARIANCE_RETURN', NULL, NULL, 1000000.00, 'USD', '2024-01-02', '2024-03-31');
+-- Interest Rate Payouts (Funding Leg)
+INSERT INTO Payout (payout_id, economic_terms_id, payer_party_id, receiver_party_id, payout_type, payment_frequency, settlement_currency, created_date) VALUES
+('PAY004', 'ET001', 'PARTY002', 'PARTY001', 'INTEREST_RATE', 'QUARTERLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY005', 'ET002', 'PARTY003', 'PARTY004', 'INTEREST_RATE', 'MONTHLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY006', 'ET004', 'PARTY001', 'PARTY003', 'INTEREST_RATE', 'QUARTERLY', 'EUR', CAST(GETDATE() AS DATE));
+
+-- Dividend Payouts (Dividend Pass-through)
+INSERT INTO Payout (payout_id, economic_terms_id, payer_party_id, receiver_party_id, payout_type, payment_frequency, settlement_currency, created_date) VALUES
+('PAY007', 'ET001', 'PARTY001', 'PARTY002', 'DIVIDEND', 'QUARTERLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY008', 'ET002', 'PARTY004', 'PARTY003', 'DIVIDEND', 'QUARTERLY', 'USD', CAST(GETDATE() AS DATE)),
+('PAY009', 'ET005', 'PARTY002', 'PARTY005', 'DIVIDEND', 'SEMI_ANNUALLY', 'JPY', CAST(GETDATE() AS DATE));
+
+-- =============================================================================
+-- PERFORMANCE PAYOUT DETAILS
+-- =============================================================================
+
+-- Equity performance payout specifications
+INSERT INTO PerformancePayout (performance_payout_id, payout_id, return_type, initial_price, initial_price_date, notional_amount, notional_currency, observation_start_date, observation_end_date, market_disruption_events) VALUES
+('PERF001', 'PAY001', 'TOTAL_RETURN', 150.25, '2024-01-02', 10000000.00, 'USD', '2024-01-02', '2024-12-31', N'[{"event_type":"TRADING_DISRUPTION","fallback":"DELAYED_VALUATION"}]'),
+('PERF002', 'PAY002', 'PRICE_RETURN', 2825.50, '2024-01-02', 5000000.00, 'USD', '2024-01-02', '2024-12-31', N'[{"event_type":"MARKET_CLOSURE","fallback":"PRECEDING_BUSINESS_DAY"}]'),
+('PERF003', 'PAY003', 'VARIANCE_RETURN', 25.80, '2024-01-02', 2000000.00, 'USD', '2024-01-02', '2024-12-31', N'[{"event_type":"DELISTING","fallback":"REPLACEMENT_SECURITY"}]');
+
+-- =============================================================================
+-- INTEREST RATE PAYOUT DETAILS
+-- =============================================================================
+
+-- Interest rate payout specifications (funding leg)
+INSERT INTO InterestRatePayout (interest_payout_id, payout_id, rate_type, fixed_rate, floating_rate_index, spread, day_count_fraction, reset_frequency, compounding_method, notional_amount, notional_currency) VALUES
+('INT001', 'PAY004', 'FLOATING', NULL, 'USD-SOFR', 0.0050, 'ACT/360', 'DAILY', 'FLAT', 10000000.00, 'USD'),
+('INT002', 'PAY005', 'FIXED', 0.0325, NULL, 0.0000, 'ACT/365', 'MONTHLY', 'NONE', 5000000.00, 'USD'),
+('INT003', 'PAY006', 'FLOATING', NULL, 'EUR-ESTR', 0.0025, 'ACT/360', 'DAILY', 'FLAT', 8000000.00, 'EUR');
+
+-- =============================================================================
+-- DIVIDEND PAYOUT DETAILS
+-- =============================================================================
+
+-- Dividend payout specifications
+INSERT INTO DividendPayout (dividend_payout_id, payout_id, dividend_treatment, dividend_percentage, ex_dividend_treatment, withholding_tax_rate, minimum_dividend_amount, dividend_currency, payment_delay_days) VALUES
+('DIV001', 'PAY007', 'PASS_THROUGH', 100.00, 'CASH_PAYMENT', 0.15, 0.01, 'USD', 2),
+('DIV002', 'PAY008', 'PASS_THROUGH', 85.00, 'CASH_PAYMENT', 0.30, 0.01, 'USD', 3),
+('DIV003', 'PAY009', 'REINVESTMENT', 100.00, 'REINVESTMENT', 0.20, 100.00, 'JPY', 0);
+
+-- =============================================================================
+-- SAMPLE CASH FLOWS
+-- =============================================================================
+
+-- Performance cash flows (quarterly settlements)
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF001', 'PAY001', 'TRD001', 'EQUITY_PERFORMANCE', 'INFLOW', '2024-03-29', '2024-03-29', 'USD', 125000.00, 125000.00, N'{"performance_period":"Q1_2024","initial_value":10000000,"final_value":10125000,"return_pct":1.25}', 'PAID', '2024-01-02', '2024-03-29'),
+('CF002', 'PAY001', 'TRD001', 'EQUITY_PERFORMANCE', 'OUTFLOW', '2024-06-28', NULL, 'USD', -87500.00, NULL, N'{"performance_period":"Q2_2024","initial_value":10125000,"final_value":10037500,"return_pct":-0.875}', 'SCHEDULED', '2024-03-29', '2024-06-28');
+
+-- Interest rate cash flows (funding leg)
+-- Calculations based on InterestRatePayout.notional_amount from PAY004
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, reference_rate, accrual_start_date, accrual_end_date) VALUES
+('CF003', 'PAY004', 'TRD001', 'INTEREST_PAYMENT', 'OUTFLOW', '2024-03-29', '2024-03-29', 'USD', -95000.00, -95000.00, N'{"source_payout":"PAY004","notional_source":"InterestRatePayout.notional_amount","original_notional":10000000,"effective_notional":10000000,"avg_rate":3.75,"spread":0.50,"sofr_rate":3.25,"accrual_days":88,"day_count":"ACT/360","calculation":"10000000 * 3.75% * 88/360"}', 'PAID', 3.7500, '2024-01-02', '2024-03-29'),
+('CF004', 'PAY004', 'TRD001', 'INTEREST_PAYMENT', 'OUTFLOW', '2024-06-28', NULL, 'USD', -98250.00, NULL, N'{"source_payout":"PAY004","notional_source":"InterestRatePayout.notional_amount","original_notional":10000000,"effective_notional":10000000,"avg_rate":3.83,"spread":0.50,"sofr_rate":3.33,"accrual_days":91,"day_count":"ACT/360","calculation":"10000000 * 3.83% * 91/360"}', 'SCHEDULED', 3.8300, '2024-03-29', '2024-06-28');
+
+-- Dividend cash flows
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF005', 'PAY007', 'TRD001', 'DIVIDEND_PAYMENT', 'INFLOW', '2024-02-15', '2024-02-17', 'USD', 8750.00, 7437.50, N'{"gross_dividend":8750,"withholding_tax":1312.50,"tax_rate":15.0,"shares_equivalent":1000}', 'PAID', '2024-02-13', '2024-02-15'),
+('CF006', 'PAY007', 'TRD001', 'DIVIDEND_PAYMENT', 'INFLOW', '2024-05-15', '2024-05-17', 'USD', 9250.00, 7862.50, N'{"gross_dividend":9250,"withholding_tax":1387.50,"tax_rate":15.0,"shares_equivalent":1000}', 'PAID', '2024-05-13', '2024-05-15');
+
+-- =============================================================================
+-- PARTIAL TERMINATION SCENARIO - REALIZED CASH FLOWS
+-- =============================================================================
+
+-- Scenario: 40% of TRD001 position terminated on 2024-07-15
+-- Original notional: $10M, Terminated portion: $4M (40%)
+-- Equity performance from inception to termination date
+
+-- REALIZED PERFORMANCE PAYOUT (Partial Termination)
+-- Equity moved from $150.25 to $162.85 (+8.38% total return)
+-- Terminated portion: $4M * 8.38% = $335,200 realized gain
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF007', 'PAY001', 'TRD001', 'EQUITY_PERFORMANCE', 'INFLOW', '2024-07-15', '2024-07-17', 'USD', 335200.00, 335200.00, 
+N'{"termination_type":"PARTIAL","terminated_notional":4000000,"initial_price":150.25,"final_price":162.85,"total_return_pct":8.38,"inception_date":"2024-01-02","termination_date":"2024-07-15","performance_breakdown":{"price_return":8.38,"dividend_yield":2.15,"total_return":8.38}}', 
+'PAID', '2024-01-02', '2024-07-15');
+
+-- REALIZED INTEREST PAYOUT (Partial Termination)
+-- Final interest payment on terminated portion - calculated from InterestRatePayout notional
+-- Original notional: 10M, Terminated: 40% = 4M, Remaining: 60% = 6M
+-- Accrued from 2024-06-28 to 2024-07-15 (17 days)
+-- Rate: SOFR 3.85% + 0.50% spread = 4.35%
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, reference_rate, accrual_start_date, accrual_end_date) VALUES
+('CF008', 'PAY004', 'TRD001', 'INTEREST_PAYMENT', 'OUTFLOW', '2024-07-15', '2024-07-17', 'USD', -8150.00, -8150.00, 
+N'{"termination_type":"PARTIAL","source_payout":"PAY004","notional_source":"InterestRatePayout.notional_amount","original_notional":10000000,"termination_percentage":40.0,"terminated_notional":4000000,"remaining_notional":6000000,"avg_rate":4.35,"spread":0.50,"sofr_rate":3.85,"accrual_days":17,"day_count":"ACT/360","calculation":"(10000000 * 0.40) * 4.35% * 17/360","notional_adjustment":"POST_TERMINATION_REDUCTION"}', 
+'PAID', 4.3500, '2024-06-28', '2024-07-15');
+
+-- REALIZED DIVIDEND PAYOUT (Partial Termination)
+-- Pro-rata dividend accrual on terminated portion
+-- Accrued dividend from 2024-05-15 to 2024-07-15 (61 days)
+-- Estimated quarterly dividend: $2.25/share, pro-rated
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF009', 'PAY007', 'TRD001', 'DIVIDEND_PAYMENT', 'INFLOW', '2024-07-15', '2024-07-17', 'USD', 3250.00, 2762.50, 
+N'{"termination_type":"PARTIAL","accrual_type":"PRO_RATA","terminated_shares_equivalent":400,"quarterly_dividend_per_share":2.25,"accrual_days":61,"quarter_days":91,"gross_accrued":3250,"withholding_tax":487.50,"tax_rate":15.0,"calculation":"400 shares * $2.25 * 61/91 days"}', 
+'PAID', '2024-05-15', '2024-07-15');
+
+-- =============================================================================
+-- POST-TERMINATION CASH FLOWS (Remaining 60% Position)
+-- =============================================================================
+
+-- Continuing performance cash flows on remaining $6M notional
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF010', 'PAY001', 'TRD001', 'EQUITY_PERFORMANCE', 'OUTFLOW', '2024-09-30', NULL, 'USD', -45000.00, NULL, 
+N'{"remaining_notional":6000000,"performance_period":"Q3_2024","post_termination":true,"price_change_pct":-0.75,"calculation":"6000000 * -0.75%"}', 
+'SCHEDULED', '2024-06-28', '2024-09-30');
+
+-- Continuing interest payments on remaining notional after partial termination
+-- Updated InterestRatePayout.notional_amount should reflect the reduced notional
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, reference_rate, accrual_start_date, accrual_end_date) VALUES
+('CF011', 'PAY004', 'TRD001', 'INTEREST_PAYMENT', 'OUTFLOW', '2024-09-30', NULL, 'USD', -67250.00, NULL, 
+N'{"source_payout":"PAY004","notional_source":"InterestRatePayout.notional_amount","original_notional":10000000,"current_notional":6000000,"post_termination":true,"termination_adjustment":"NOTIONAL_REDUCED_BY_40_PERCENT","avg_rate":4.25,"spread":0.50,"sofr_rate":3.75,"accrual_days":95,"day_count":"ACT/360","calculation":"6000000 * 4.25% * 95/360","note":"Notional reduced from 10M to 6M after partial termination"}', 
+'SCHEDULED', 4.2500, '2024-06-28', '2024-09-30');
+
+-- Continuing dividend payments on remaining position
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF012', 'PAY007', 'TRD001', 'DIVIDEND_PAYMENT', 'INFLOW', '2024-08-15', '2024-08-17', 'USD', 6750.00, 5737.50, 
+N'{"remaining_shares_equivalent":600,"quarterly_dividend_per_share":2.25,"gross_dividend":6750,"withholding_tax":1012.50,"tax_rate":15.0,"post_termination":true}', 
+'PAID', '2024-08-13', '2024-08-15');
+
+-- =============================================================================
+-- FULL TERMINATION SCENARIO - COMPLETE SETTLEMENT
+-- =============================================================================
+
+-- Scenario: TRD002 (S&P 500 Index Swap) fully terminated on 2024-08-30
+-- Original trade: $5M notional, inception 2024-01-02, early termination
+-- Final settlement of all accrued performance, interest, and dividend amounts
+
+-- FINAL PERFORMANCE SETTLEMENT (Full Termination)
+-- S&P 500 moved from 4,825.50 to 5,475.25 (+13.47% total return over 8 months)
+-- Full notional: $5M * 13.47% = $673,500 realized gain
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF013', 'PAY002', 'TRD002', 'EQUITY_PERFORMANCE', 'INFLOW', '2024-08-30', '2024-09-03', 'USD', 673500.00, 673500.00, 
+N'{"termination_type":"FULL","total_notional":5000000,"initial_index_level":4825.50,"final_index_level":5475.25,"total_return_pct":13.47,"inception_date":"2024-01-02","termination_date":"2024-08-30","holding_period_months":8,"performance_breakdown":{"capital_appreciation":11.22,"dividend_yield":2.25,"total_return":13.47},"realized_pnl":673500}', 
+'PAID', '2024-01-02', '2024-08-30');
+
+-- FINAL INTEREST SETTLEMENT (Full Termination)
+-- Final funding cost payment calculated from InterestRatePayout.notional_amount for PAY005
+-- Accrued from last payment 2024-07-31 to termination 2024-08-30 (30 days)
+-- Current rate: SOFR 4.15% + 0.50% spread = 4.65%
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, reference_rate, accrual_start_date, accrual_end_date) VALUES
+('CF014', 'PAY005', 'TRD002', 'INTEREST_PAYMENT', 'OUTFLOW', '2024-08-30', '2024-09-03', 'USD', -19375.00, -19375.00, 
+N'{"termination_type":"FULL","source_payout":"PAY005","notional_source":"InterestRatePayout.notional_amount","total_notional":5000000,"final_payment":true,"final_rate":4.65,"spread":0.50,"sofr_rate":4.15,"accrual_days":30,"day_count":"ACT/360","calculation":"5000000 * 4.65% * 30/360","ytd_interest_paid":145250.00,"total_funding_cost":164625.00,"lifecycle_note":"Final settlement uses full original notional as no partial termination occurred"}', 
+'PAID', 4.6500, '2024-07-31', '2024-08-30');
+
+-- FINAL DIVIDEND SETTLEMENT (Full Termination)
+-- Settlement of all accrued dividends to termination date
+-- Includes: Q2 ex-dividend accrual + Q3 partial accrual
+-- Total accrued: $18,750 gross dividends
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF015', 'PAY008', 'TRD002', 'DIVIDEND_PAYMENT', 'INFLOW', '2024-08-30', '2024-09-03', 'USD', 18750.00, 13125.00, 
+N'{"termination_type":"FULL","final_dividend_settlement":true,"total_shares_equivalent":500,"accrued_periods":[{"period":"Q2_2024","dividend_per_share":2.85,"amount":1425},{"period":"Q3_2024_PARTIAL","dividend_per_share":3.10,"accrual_days":61,"quarter_days":92,"amount":17325}],"gross_total":18750,"withholding_tax":5625,"tax_rate":30.0,"net_settlement":13125}', 
+'PAID', '2024-06-15', '2024-08-30');
+
+-- TERMINATION FEE (if applicable)
+-- Early termination fee as per ISDA agreement
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF016', 'PAY005', 'TRD002', 'FEE_PAYMENT', 'OUTFLOW', '2024-08-30', '2024-09-03', 'USD', -12500.00, -12500.00, 
+N'{"termination_type":"FULL","fee_type":"EARLY_TERMINATION","fee_basis":"NOTIONAL_PERCENTAGE","fee_rate":0.25,"calculation":"5000000 * 0.25%","contractual_basis":"ISDA_MASTER_AGREEMENT"}', 
+'PAID', '2024-08-30', '2024-08-30');
+
+-- NET SETTLEMENT SUMMARY
+-- Final net settlement amount across all cash flows
+INSERT INTO CashFlow (cash_flow_id, payout_id, trade_id, flow_type, flow_direction, scheduled_date, actual_payment_date, currency, scheduled_amount, actual_amount, calculation_details, payment_status, accrual_start_date, accrual_end_date) VALUES
+('CF017', 'PAY002', 'TRD002', 'PRINCIPAL_PAYMENT', 'INFLOW', '2024-08-30', '2024-09-03', 'USD', 654750.00, 654750.00, 
+N'{"termination_type":"FULL","settlement_type":"NET_CASH_SETTLEMENT","component_breakdown":{"performance_gain":673500,"interest_cost":-19375,"dividend_income":13125,"termination_fee":-12500,"net_settlement":654750},"trade_pnl_summary":{"total_performance":673500,"total_funding_cost":-164625,"total_dividends":48750,"total_fees":-12500,"net_pnl":545125}}', 
+'PAID', '2024-01-02', '2024-08-30');
+
+-- =============================================================================
+-- TRADE STATUS UPDATES
+-- =============================================================================
+
+-- Update trade status to reflect terminations
+-- TRD001: Partially terminated (reduced notional)
+-- TRD002: Fully terminated
+
+-- Note: Trade status updates would typically be handled via UPDATE statements
+-- Sample UPDATE statements for demonstration:
+-- UPDATE Trade SET status = 'PARTIALLY_TERMINATED', updated_timestamp = GETDATE() WHERE trade_id = 'TRD001';
+-- UPDATE Trade SET status = 'TERMINATED', updated_timestamp = GETDATE() WHERE trade_id = 'TRD002';
 
 -- =============================================================================
 -- TRADE EXECUTION
