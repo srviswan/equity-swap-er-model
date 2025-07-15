@@ -1,0 +1,296 @@
+# Equity Swap Data Model: Entity & Relationship Explanations
+
+This document explains the entities, attributes, and relationships represented in the equity swap ER diagram. It is intended to help users understand the structure and logic of the data model.
+
+---
+
+## Entities & Attribute Definitions
+
+### TRADE
+| Attribute      | Data Type    | Required | Description                                 |
+|---------------|-------------|----------|---------------------------------------------|
+| id            | VARCHAR(32) | Yes (PK) | Unique trade identifier                     |
+| product_type  | VARCHAR(64) | Yes      | Type of product (e.g., EquitySwap)          |
+| trade_date    | DATE        | Yes      | Date the trade was executed                 |
+
+*Role*: Captures the core details of a trade.
+
+**Related Java class:** `cdm.event.common.Trade`
+
+### TRADABLE_PRODUCT
+| Attribute   | Data Type    | Required | Description                                 |
+|-------------|-------------|----------|---------------------------------------------|
+| id          | VARCHAR(32) | Yes (PK) | Unique identifier for the tradable product  |
+| adjustment  | VARCHAR(64) | No       | Notional adjustment mechanism               |
+| trade_id    | VARCHAR(32) | No (FK)  | Reference to the trade                      |
+
+*Role*: Represents the product being traded, including adjustments.
+
+**Related Java class:** `cdm.product.template.TradableProduct`
+
+### NON_TRANSFERABLE_PRODUCT
+| Attribute           | Data Type    | Required | Description                                 |
+|---------------------|-------------|----------|---------------------------------------------|
+| id                  | VARCHAR(32) | Yes (PK) | Unique identifier for the non-transferable product |
+| tradable_product_id | VARCHAR(32) | No (FK)  | Reference to the tradable product           |
+
+*Role*: Underlying product details, not directly transferable.
+
+**Related Java class:** `cdm.product.template.NonTransferableProduct`
+
+### ECONOMIC_TERMS
+| Attribute                 | Data Type    | Required | Description                                 |
+|---------------------------|-------------|----------|---------------------------------------------|
+| id                        | VARCHAR(32) | Yes (PK) | Unique identifier for economic terms        |
+| effective_date            | DATE        | No       | When the terms become effective             |
+| termination_date          | DATE        | No       | When the terms end                          |
+| non_transferable_product_id| VARCHAR(32)| No (FK)  | Reference to the non-transferable product   |
+
+*Role*: Core economic features of the product, including payouts and provisions.
+
+**Related Java class:** `cdm.product.template.EconomicTerms`
+
+### PERFORMANCE_PAYOUT
+| Attribute         | Data Type    | Required | Description                                 |
+|-------------------|-------------|----------|---------------------------------------------|
+| id                | VARCHAR(32) | Yes (PK) | Unique identifier for performance payout     |
+| underlier_type    | VARCHAR(32) | No       | Type of underlier (Equity, Index, Basket)   |
+| underlier         | VARCHAR(256)| No       | Underlier name(s)                           |
+| economic_terms_id | VARCHAR(32) | No (FK)  | Reference to economic terms                  |
+
+*Role*: Tracks performance-based payouts (e.g., equity return).
+
+**Related Java class:** `cdm.product.template.PerformancePayout`
+
+### RETURN_TERMS
+| Attribute         | Data Type    | Required | Description                                 |
+|-------------------|-------------|----------|---------------------------------------------|
+| id                | VARCHAR(32) | Yes (PK) | Unique identifier for return terms           |
+| return_type       | VARCHAR(64) | No       | Type of return (Price, Dividend, etc.)      |
+| economic_terms_id | VARCHAR(32) | No (FK)  | Reference to economic terms                  |
+
+*Role*: Specifies the type of return (price, dividend, variance, correlation).
+
+**Related Java class:** `cdm.product.template.ReturnTerms`
+
+### PARTY
+| Attribute   | Data Type    | Required | Description                                 |
+|-------------|-------------|----------|---------------------------------------------|
+| id          | VARCHAR(32) | Yes (PK) | Unique party identifier                      |
+| name        | VARCHAR(128)| Yes      | Name of the party                            |
+| role        | VARCHAR(64) | Yes      | Role in the trade (e.g., buyer, seller)      |
+| trade_id    | VARCHAR(32) | No (FK)  | Reference to the trade                       |
+
+*Role*: Represents all parties involved in the trade.
+
+**Related Java class:** `cdm.event.common.Party`
+
+### PRODUCT_IDENTIFIER
+| Attribute           | Data Type    | Required | Description                                 |
+|---------------------|-------------|----------|---------------------------------------------|
+| id                  | VARCHAR(32) | Yes (PK) | Unique identifier for the product identifier |
+| identifier          | VARCHAR(64) | Yes      | The identifier value (e.g., ISIN, CUSIP)     |
+| type                | VARCHAR(32) | Yes      | Type of identifier                           |
+| tradable_product_id | VARCHAR(32) | No (FK)  | Reference to the tradable product            |
+
+*Role*: Identifies the product in external systems.
+
+**Related Java class:** `cdm.product.common.settlement.ProductIdentifier`
+
+---
+
+## Java Source Attribute and Relationship Reference
+
+Below is a summary of each main entity, its attributes (with types and descriptions) as defined in the Java source, its related entities, and a short explanation of its relationships.
+
+### Trade (`cdm.event.common.Trade`)
+**Attributes:**
+- `tradeIdentifier` (List<TradeIdentifier>): Unique identifiers for the trade (e.g., USI, UTI).
+- `tradeDate` (FieldWithMetaDate): The date the trade was agreed.
+- `tradeTime` (FieldWithMetaTimeZone): The time and timezone of the trade.
+- `party` (List<Party>): Parties involved in the trade.
+- `partyRole` (List<PartyRole>): Roles of each party (e.g., buyer, seller, agent).
+- `executionDetails` (ExecutionDetails): Details about the execution of the trade.
+- `contractDetails` (ContractDetails): Details about the contract.
+- `clearedDate` (Date): Date the trade was cleared.
+- `collateral` (Collateral): Collateral obligations.
+- `account` (List<Account>): Account information for parties.
+- `meta` (MetaFields): Metadata.
+
+**Related Entities:**
+- Inherits from `TradableProduct` (see below), so also includes product, tradeLot, counterparty, ancillaryParty, adjustment.
+
+**Relationships:**
+- Trade is the root entity, referencing parties, identifiers, execution, contract, and product details.
+
+---
+
+### TradableProduct (`cdm.product.template.TradableProduct`)
+**Attributes:**
+- `product` (NonTransferableProduct): The underlying product (see below).
+- `tradeLot` (List<TradeLot>): Price, quantity, and effective date for each lot.
+- `counterparty` (List<Counterparty>): The two main counterparties.
+- `ancillaryParty` (List<AncillaryParty>): Other parties with ancillary roles.
+- `adjustment` (NotionalAdjustmentEnum): Mechanism for quantity adjustment.
+
+**Related Entities:**
+- References `NonTransferableProduct`, `TradeLot`, `Counterparty`, `AncillaryParty`.
+
+**Relationships:**
+- TradableProduct is referenced by Trade and contains the product and party relationships.
+
+---
+
+### NonTransferableProduct (`cdm.product.template.NonTransferableProduct`)
+**Attributes:**
+- `identifier` (List<ProductIdentifier>): Unique identifiers for the product (e.g., ISIN, CUSIP).
+- `taxonomy` (List<ProductTaxonomy>): Classification/taxonomy of the product.
+- `economicTerms` (EconomicTerms): The core economic features (see below).
+- `meta` (MetaFields): Metadata.
+
+**Related Entities:**
+- References `ProductIdentifier`, `ProductTaxonomy`, `EconomicTerms`.
+
+**Relationships:**
+- NonTransferableProduct is referenced by TradableProduct and contains identifiers, taxonomy, and economic terms.
+
+---
+
+### EconomicTerms (`cdm.product.template.EconomicTerms`)
+**Attributes:**
+- `effectiveDate` (AdjustableOrRelativeDate): When the terms become effective.
+- `terminationDate` (AdjustableOrRelativeDate): When the terms end.
+- `dateAdjustments` (BusinessDayAdjustments): Business day adjustment conventions.
+- `payout` (List<Payout>): Future cashflow computation methodology (see PerformancePayout below).
+- `terminationProvision` (TerminationProvision): Termination characteristics.
+- `calculationAgent` (CalculationAgent): Calculation agent for the product.
+- `nonStandardisedTerms` (Boolean): If additional economic terms exist.
+- `collateral` (Collateral): Collateral obligations.
+
+**Related Entities:**
+- References `Payout` (abstract, can be `PerformancePayout`, `InterestRatePayout`, etc.), `TerminationProvision`, `CalculationAgent`, `Collateral`.
+
+**Relationships:**
+- EconomicTerms is referenced by NonTransferableProduct and contains payout and legal provisions.
+
+---
+
+### PerformancePayout (`cdm.product.template.PerformancePayout`)
+**Attributes:**
+- Inherits from `PayoutBase` (payerReceiver, priceQuantity, principalPayment, settlementTerms).
+- `observationTerms` (ObservationTerms): How/when performance is observed.
+- `valuationDates` (ValuationDates): How/when performance is valued.
+- `paymentDates` (PaymentDates): Payment date schedule.
+- `underlier` (Underlier): The referenced product for pricing (e.g., equity, index, basket).
+- `fxFeature` (List<FxFeature>): FX features in the swap leg.
+- `returnTerms` (ReturnTerms): Type of return (see below).
+- `portfolioReturnTerms` (List<PortfolioReturnTerms>): For baskets/portfolios.
+- `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` (List<ReferenceWithMetaPriceSchedule>): Valuation prices.
+
+**Related Entities:**
+- References `ObservationTerms`, `ValuationDates`, `PaymentDates`, `Underlier`, `FxFeature`, `ReturnTerms`, `PortfolioReturnTerms`.
+
+**Relationships:**
+- PerformancePayout is referenced by EconomicTerms and contains all details for equity, index, or basket performance legs.
+
+---
+
+### ReturnTerms (`cdm.product.template.ReturnTerms`)
+**Attributes:**
+- `priceReturnTerms` (PriceReturnTerms): Return based on observed price.
+- `dividendReturnTerms` (DividendReturnTerms): Return based on dividends.
+- `varianceReturnTerms` (VarianceReturnTerms): Return based on variance.
+- `volatilityReturnTerms` (VolatilityReturnTerms): Return based on volatility.
+- `correlationReturnTerms` (CorrelationReturnTerms): Return based on correlation.
+
+**Related Entities:**
+- References specific return term types for different swap structures.
+
+**Relationships:**
+- ReturnTerms is referenced by PerformancePayout and specifies the calculation method for the return.
+
+---
+
+### Party (`cdm.base.staticdata.party.Party`)
+**Attributes:**
+- Not available in the workspace, but typically includes party identifiers, name, and role.
+
+**Relationships:**
+- Referenced by Trade and TradableProduct as the involved parties.
+
+---
+
+### ProductIdentifier (`cdm.base.staticdata.asset.common.ProductIdentifier`)
+**Attributes:**
+- Not available in the workspace, but typically includes identifier value, type, and source.
+
+**Relationships:**
+- Referenced by NonTransferableProduct for product identification.
+
+---
+
+## Relationships & Explanations
+
+- **TRADE → TRADABLE_PRODUCT**: Each trade references a tradable product being transacted.
+- **TRADABLE_PRODUCT → NON_TRANSFERABLE_PRODUCT**: The tradable product is based on a non-transferable product definition.
+- **NON_TRANSFERABLE_PRODUCT → ECONOMIC_TERMS**: The non-transferable product has associated economic terms (dates, payouts, etc.).
+- **ECONOMIC_TERMS → PERFORMANCE_PAYOUT / RETURN_TERMS**: Economic terms define one or more payout types and return terms.
+- **PERFORMANCE_PAYOUT / RETURN_TERMS → ECONOMIC_TERMS**: Both reference economic terms as their parent.
+- **TRADABLE_PRODUCT → PRODUCT_IDENTIFIER**: Products are identified for external and regulatory purposes.
+- **TRADE → PARTY**: Each trade involves one or more parties.
+
+---
+
+## How It All Fits Together
+
+This data model enables comprehensive tracking of equity swap trades, from execution through settlement, including all parties, product definitions, performance and interest calculations, and regulatory requirements. Each entity is designed to capture a specific aspect of the trade lifecycle, and the relationships ensure data integrity and traceability for compliance, risk management, and business operations.
+
+---
+
+## Example Scenarios
+
+### 1. Single Equity Swap Example
+- **TRADE**: Trade ID 1001, product_type: "EquitySwap", trade_date: 2024-06-01
+- **TRADABLE_PRODUCT**: ID 2001, adjustment: "None"
+- **NON_TRANSFERABLE_PRODUCT**: ID 3001
+- **ECONOMIC_TERMS**: ID 4001, effective_date: 2024-06-03, termination_date: 2025-06-03
+- **PERFORMANCE_PAYOUT**: ID 5001 (linked to a single equity underlier)
+- **RETURN_TERMS**: ID 6001, priceReturnTerms populated
+- **PARTY**: Buyer (ID 7001), Seller (ID 7002)
+- **PRODUCT_IDENTIFIER**: ISIN for the equity (e.g., "US0378331005" for Apple Inc.)
+- **RESET_HISTORY**: Quarterly resets
+- **SETTLEMENT_TERMS**: Cash settlement, USD
+
+**Description**: This represents a swap where the return is based on the performance of a single equity (e.g., Apple Inc.), with quarterly resets and cash settlement.
+
+---
+
+### 2. Index Equity Swap Example
+- **TRADE**: Trade ID 1010, product_type: "EquityIndexSwap", trade_date: 2024-05-15
+- **TRADABLE_PRODUCT**: ID 2010, adjustment: "NotionalAdjustment"
+- **NON_TRANSFERABLE_PRODUCT**: ID 3010
+- **ECONOMIC_TERMS**: ID 4010, effective_date: 2024-05-17, termination_date: 2025-05-17
+- **PERFORMANCE_PAYOUT**: ID 5010 (linked to an index underlier)
+- **RETURN_TERMS**: ID 6010, priceReturnTerms populated
+- **PARTY**: Buyer (ID 7010), Seller (ID 7011)
+- **PRODUCT_IDENTIFIER**: Index identifier (e.g., "SPX" for S&P 500)
+- **RESET_HISTORY**: Monthly resets
+- **SETTLEMENT_TERMS**: Cash settlement, EUR
+
+**Description**: This swap references an equity index (e.g., S&P 500), with monthly resets and notional adjustment, settled in EUR.
+
+---
+
+### 3. Basket Equity Swap Example
+- **TRADE**: Trade ID 1020, product_type: "EquityBasketSwap", trade_date: 2024-04-10
+- **TRADABLE_PRODUCT**: ID 2020, adjustment: "BasketAdjustment"
+- **NON_TRANSFERABLE_PRODUCT**: ID 3020
+- **ECONOMIC_TERMS**: ID 4020, effective_date: 2024-04-12, termination_date: 2025-04-12
+- **PERFORMANCE_PAYOUT**: ID 5020 (linked to a basket of equities)
+- **RETURN_TERMS**: ID 6020, priceReturnTerms and dividendReturnTerms populated
+- **PARTY**: Buyer (ID 7020), Seller (ID 7021)
+- **PRODUCT_IDENTIFIER**: Multiple ISINs for each equity in the basket
+- **RESET_HISTORY**: Semi-annual resets
+- **SETTLEMENT_TERMS**: Physical settlement, GBP
+
+**Description**: This swap is based on a basket of equities (e.g., 10 tech stocks), with both price and dividend returns tracked, semi-annual resets, and physical settlement in GBP. 
