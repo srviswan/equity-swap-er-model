@@ -127,6 +127,19 @@ reset_events AS (
     WHERE event_type = 'RESET'
 ),
 
+-- Get spread override events
+spread_override_events AS (
+    SELECT 
+        trade_id,
+        effective_date,
+        long_spread,
+        short_spread,
+        override_type,
+        ROW_NUMBER() OVER (PARTITION BY trade_id ORDER BY effective_date) as spread_sequence
+    FROM equity_swap_time_series
+    WHERE event_type = 'SPREAD_OVERRIDE'
+),
+
 -- Get settlement events for each trade
 settlement_events AS (
     SELECT 
@@ -165,7 +178,22 @@ trade_effective_notionals AS (
             SELECT MAX(re.reset_date)
             FROM reset_events re
             WHERE re.trade_id = tsi.trade_id
-        ) as latest_reset_date
+        ) as latest_reset_date,
+        
+        -- Latest spread override
+        (
+            SELECT TOP 1 soe.long_spread
+            FROM spread_override_events soe
+            WHERE soe.trade_id = tsi.trade_id
+            ORDER BY soe.effective_date DESC
+        ) as current_long_spread,
+        
+        (
+            SELECT TOP 1 soe.short_spread
+            FROM spread_override_events soe
+            WHERE soe.trade_id = tsi.trade_id
+            ORDER BY soe.effective_date DESC
+        ) as current_short_spread
         
     FROM trade_settlement_info tsi
 )
@@ -180,6 +208,8 @@ SELECT
     fixed_rate,
     day_count_convention,
     latest_reset_date,
+    current_long_spread,
+    current_short_spread,
     
     -- Determine if trade should be included based on settlement date
     CASE 
@@ -199,7 +229,8 @@ SELECT
     JSON_QUERY((
         SELECT 
             trade_id, trade_date, settlement_date, settlement_status,
-            original_notional, current_post_reset_notional, latest_reset_date
+            original_notional, current_post_reset_notional, latest_reset_date,
+            current_long_spread, current_short_spread
         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
     )) as trade_details
     
@@ -270,28 +301,75 @@ BEGIN
         FROM interest_payouts ip
         CROSS JOIN relevant_periods rp
         WHERE rp.calc_start_date < rp.calc_end_date
+    -- Insert calculated periods with dynamic spreads
+    INSERT INTO #cdm_interest_calculations (
+        trade_id,
+        payout_id,
+        period_start_date,
+        period_end_date,
+        days_in_period,
+        day_count_fraction,
+        notional_amount,
+        fixed_rate,
+        interest_amount,
+        calculation_formula,
+        calculation_context,
+        debug_info
     )
-    
-    INSERT INTO #cdm_interest_calculations
     SELECT 
         trade_id,
         payout_id,
-        calc_start_date,
-        calc_end_date,
-        notional_amount,
-        interest_rate,
-        day_count_fraction,
-        interest_amount,
-        day_count_convention,
-        calculation_formula,
-        JSON_QUERY((
-            SELECT 
-                trade_id, payout_id, calc_start_date, calc_end_date,
-                notional_amount, interest_rate, day_count_fraction, interest_amount,
-                day_count_convention, calculation_formula
-            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
-        ))
-    FROM period_interest;
+        period_start_date,
+        period_end_date,
+        DATEDIFF(DAY, period_start_date, period_end_date) as days_in_period,
+        dbo.udf_calculate_day_count_fraction(period_start_date, period_end_date, day_count_convention) as day_count_fraction,
+        period_notional,
+        fixed_rate,
+        ROUND(
+            period_notional * (fixed_rate + period_spread) * dbo.udf_calculate_day_count_fraction(period_start_date, period_end_date, day_count_convention),
+            2
+        ) as interest_amount,
+        CONCAT(
+            'Interest = ', 
+            FORMAT(period_notional, 'N2'), 
+            ' * (', 
+            FORMAT(fixed_rate, 'N4'), 
+            ' + ', 
+            FORMAT(period_spread, 'N6'), 
+            ') * ', 
+            FORMAT(dbo.udf_calculate_day_count_fraction(period_start_date, period_end_date, day_count_convention), 'N8')
+        ) as calculation_formula,
+        CONCAT('Period: [', period_start_date, ' to ', period_end_date, '] Type: ', period_type, ' Spread: ', FORMAT(period_spread, 'N6')) as calculation_context,
+        CONCAT('Trade: ', trade_id, ' Settlement: ', @settlement_date, ' Status: ', @settlement_status, ' Context: ', period_context) as debug_info
+    FROM (
+        SELECT 
+            trade_id,
+            payout_id,
+            period_start_date,
+            period_end_date,
+            period_notional,
+            fixed_rate,
+            day_count_convention,
+            period_context,
+            period_type,
+            
+            -- Determine the effective spread for this period
+            COALESCE(
+                -- Use spread override if available
+                (
+                    SELECT TOP 1 soe.long_spread 
+                    FROM spread_override_events soe 
+                    WHERE soe.trade_id = cp.trade_id 
+                      AND soe.effective_date <= cp.period_start_date
+                    ORDER BY soe.effective_date DESC
+                ),
+                -- Otherwise use default spread
+                default_spread
+            ) as period_spread
+            
+        FROM calculation_periods cp
+    ) final_periods
+    WHERE period_start_date < period_end_date;
     
     -- Return results
     SELECT 
