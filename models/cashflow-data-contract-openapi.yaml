@@ -1,0 +1,1339 @@
+openapi: 3.0.3
+info:
+  title: Cashflow Data Product Contract
+  description: |
+    Comprehensive API contract for the Cashflow Management Service accommodating various 
+    contract types, payout structures, and calculation flexibilities.
+    
+    This contract supports:
+    - Multiple contract types (Equity Swap, Interest Rate Swap, Total Return Swap, etc.)
+    - Polymorphic payout structures (Interest Rate, Performance, Dividend, Principal)
+    - Flexible rate specifications (Fixed and Floating rates)
+    - Dynamic quantity schedules for varying notional amounts
+    - Comprehensive market data integration
+    - Configurable calculation options
+    - Batch processing capabilities
+    - Real-time and historical calculations
+  version: 1.0.0
+  contact:
+    name: Cashflow Management Service Team
+    email: cashflow-team@company.com
+  license:
+    name: Proprietary
+    url: https://company.com/licenses/proprietary
+
+servers:
+  - url: https://api.company.com/cashflow/v1
+    description: Production server
+  - url: https://staging-api.company.com/cashflow/v1
+    description: Staging server
+  - url: https://dev-api.company.com/cashflow/v1
+    description: Development server
+
+tags:
+  - name: calculations
+    description: Cashflow calculation operations
+  - name: contracts
+    description: Contract management operations
+  - name: market-data
+    description: Market data operations
+  - name: health
+    description: Service health and monitoring
+
+paths:
+  /calculations/single:
+    post:
+      tags:
+        - calculations
+      summary: Calculate cashflow for a single contract
+      description: |
+        Performs cashflow calculation for a single contract with flexible payout structures.
+        Supports all contract types and payout types defined in the data contract.
+      operationId: calculateSingleCashflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashflowCalculationRequest'
+            examples:
+              equity_swap:
+                summary: Equity Swap with Floating Rate
+                value:
+                  contract:
+                    contractId: "SWAP_001"
+                    contractType: "EQUITY_SWAP"
+                    tradeDate: "2024-01-01"
+                    effectiveDate: "2024-01-15"
+                    maturityDate: "2025-01-15"
+                    currency: "USD"
+                    status: "ACTIVE"
+                    notionalAmount:
+                      value: 1000000
+                      currency: "USD"
+                    counterpartyId: "CP_001"
+                    payouts:
+                      - payoutId: "PAYOUT_001"
+                        payoutType: "INTEREST_RATE"
+                        payerId: "PARTY_A"
+                        receiverId: "PARTY_B"
+                        notionalAmount:
+                          value: 1000000
+                          currency: "USD"
+                        rateSpecification:
+                          rateType: "FLOATING"
+                          floatingRateIndex: "SOFR"
+                          spread: 0.005
+                        currency: "USD"
+                        dayCountConvention: "ACT/360"
+                        paymentFrequency: "QUARTERLY"
+                  calculationDate: "2024-06-15"
+                  marketData:
+                    rates:
+                      SOFR: 0.045
+                    prices:
+                      SPY:
+                        value: 450.50
+                        currency: "USD"
+                        date: "2024-06-15"
+                  options:
+                    includeDividends: true
+                    dayCountConvention: "ACT/360"
+                    precision: 8
+      responses:
+        '200':
+          description: Successful calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashflowCalculationResponse'
+              examples:
+                enhanced_response:
+                  summary: Enhanced Response with Summary and Details
+                  value:
+                    contractId: "EQ_SWAP_001"
+                    calculationDate: "2024-06-15"
+                    totalCashflow:
+                      value: 125000.50
+                      currency: "USD"
+                    payoutResults:
+                      - payoutId: "FLOATING_LEG"
+                        payoutType: "INTEREST_RATE"
+                        cashflowAmount:
+                          value: 75000.25
+                          currency: "USD"
+                        calculationStatus: "SUCCESS"
+                      - payoutId: "EQUITY_LEG"
+                        payoutType: "PERFORMANCE"
+                        cashflowAmount:
+                          value: 50000.25
+                          currency: "USD"
+                        calculationStatus: "SUCCESS"
+                    calculationStatus: "SUCCESS"
+                    calculatedAt: "2024-06-15T10:30:00Z"
+                    processingTimeMs: 150
+                    cashflowSummary:
+                      totalCashflow:
+                        value: 125000.50
+                        currency: "USD"
+                      summaryByType:
+                        interestAmount:
+                          value: 75000.25
+                          currency: "USD"
+                        performanceAmount:
+                          value: 50000.25
+                          currency: "USD"
+                      summaryByPayout:
+                        - payoutId: "FLOATING_LEG"
+                          payoutType: "INTEREST_RATE"
+                          totalAmount:
+                            value: 75000.25
+                            currency: "USD"
+                          breakdown:
+                            accruedAmount:
+                              value: 45000.15
+                              currency: "USD"
+                            paidAmount:
+                              value: 30000.10
+                              currency: "USD"
+                            pendingAmount:
+                              value: 0.00
+                              currency: "USD"
+                      calculationPeriod:
+                        startDate: "2024-03-15"
+                        endDate: "2024-06-15"
+                        totalDays: 92
+                        businessDays: 65
+                        accrualDays: 92
+                      detailedBreakdown:
+                        dailyBreakdown:
+                          - date: "2024-06-01"
+                            totalAmount:
+                              value: 815.22
+                              currency: "USD"
+                            interestAmount:
+                              value: 815.22
+                              currency: "USD"
+                            accruedAmount:
+                              value: 815.22
+                              currency: "USD"
+                            cumulativeAmount:
+                              value: 75000.25
+                              currency: "USD"
+                        accrualSchedule:
+                          - payoutId: "FLOATING_LEG"
+                            startDate: "2024-03-15"
+                            endDate: "2024-06-15"
+                            accruedAmount:
+                              value: 45000.15
+                              currency: "USD"
+                            notionalAmount:
+                              value: 1000000
+                              currency: "USD"
+                            rate: 0.045
+                            dayCount: 92
+                            dayCountFraction: 0.2556
+                        interestBreakdown:
+                          - payoutId: "FLOATING_LEG"
+                            periodStart: "2024-03-15"
+                            periodEnd: "2024-06-15"
+                            interestAmount:
+                              value: 45000.15
+                              currency: "USD"
+                            notionalAmount:
+                              value: 1000000
+                              currency: "USD"
+                            rate: 0.045
+                            dayCount: 92
+                            dayCountFraction: 0.2556
+                            calculationMethod: "CDM_INSPIRED"
+                            resetDate: "2024-03-15"
+                            resetRate: 0.045
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calculations/batch:
+    post:
+      tags:
+        - calculations
+      summary: Calculate cashflow for multiple contracts
+      description: |
+        Performs batch cashflow calculation for multiple contracts.
+        Supports parallel processing and provides detailed results for each contract.
+      operationId: calculateBatchCashflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCashflowCalculationRequest'
+      responses:
+        '200':
+          description: Successful batch calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCashflowCalculationResponse'
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /contracts:
+    get:
+      tags:
+        - contracts
+      summary: List contracts
+      description: Retrieve a list of contracts with optional filtering
+      operationId: listContracts
+      parameters:
+        - name: status
+          in: query
+          description: Filter by contract status
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, EXPIRED, TERMINATED, PENDING]
+        - name: contractType
+          in: query
+          description: Filter by contract type
+          schema:
+            type: string
+            enum: [EQUITY_SWAP, INTEREST_RATE_SWAP, TOTAL_RETURN_SWAP, CURRENCY_SWAP, CREDIT_DEFAULT_SWAP, COMMODITY_SWAP]
+        - name: limit
+          in: query
+          description: Maximum number of contracts to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of contracts to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of contracts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractListResponse'
+
+  /contracts/{contractId}:
+    get:
+      tags:
+        - contracts
+      summary: Get contract details
+      description: Retrieve detailed information about a specific contract
+      operationId: getContract
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          description: Contract identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contract details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractResponse'
+        '404':
+          description: Contract not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /market-data:
+    get:
+      tags:
+        - market-data
+      summary: Get market data
+      description: Retrieve current market data for calculations
+      operationId: getMarketData
+      parameters:
+        - name: date
+          in: query
+          description: Date for market data (defaults to current date)
+          schema:
+            type: string
+            format: date
+        - name: include
+          in: query
+          description: Types of market data to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [rates, prices, dividends, volatilities]
+      responses:
+        '200':
+          description: Market data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketDataResponse'
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Service health check
+      description: Check the health status of the service
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    Contract:
+      type: object
+      required:
+        - contractId
+        - contractType
+        - tradeDate
+        - effectiveDate
+        - maturityDate
+        - currency
+        - status
+        - notionalAmount
+        - counterpartyId
+        - payouts
+      properties:
+        contractId:
+          type: string
+          description: Unique identifier for the contract
+          minLength: 1
+          maxLength: 100
+          pattern: '^[A-Z0-9_-]+$'
+        contractType:
+          $ref: '#/components/schemas/ContractType'
+        tradeDate:
+          type: string
+          format: date
+          description: Date when the contract was traded
+        effectiveDate:
+          type: string
+          format: date
+          description: Effective start date of the contract
+        maturityDate:
+          type: string
+          format: date
+          description: Maturity date of the contract
+        currency:
+          type: string
+          description: Base currency for the contract
+          pattern: '^[A-Z]{3}$'
+          example: USD
+        status:
+          $ref: '#/components/schemas/ContractStatus'
+        notionalAmount:
+          $ref: '#/components/schemas/Money'
+        counterpartyId:
+          type: string
+          description: Identifier for the counterparty
+          minLength: 1
+          maxLength: 100
+        payouts:
+          type: array
+          description: List of payout structures
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Payout'
+
+    ContractType:
+      type: string
+      enum:
+        - EQUITY_SWAP
+        - INTEREST_RATE_SWAP
+        - TOTAL_RETURN_SWAP
+        - CURRENCY_SWAP
+        - CREDIT_DEFAULT_SWAP
+        - COMMODITY_SWAP
+      description: Type of financial contract
+
+    ContractStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - EXPIRED
+        - TERMINATED
+        - PENDING
+      description: Current status of the contract
+
+    Payout:
+      type: object
+      required:
+        - payoutId
+        - payoutType
+        - payerId
+        - receiverId
+      properties:
+        payoutId:
+          type: string
+          description: Unique identifier for the payout
+          minLength: 1
+          maxLength: 100
+        payoutType:
+          $ref: '#/components/schemas/PayoutType'
+        payerId:
+          type: string
+          description: Identifier of the payer
+          minLength: 1
+          maxLength: 100
+        receiverId:
+          type: string
+          description: Identifier of the receiver
+          minLength: 1
+          maxLength: 100
+      discriminator:
+        propertyName: payoutType
+        mapping:
+          INTEREST_RATE: '#/components/schemas/InterestRatePayout'
+          PERFORMANCE: '#/components/schemas/PerformancePayout'
+          DIVIDEND: '#/components/schemas/DividendPayout'
+          PRINCIPAL: '#/components/schemas/PrincipalPayout'
+
+    PayoutType:
+      type: string
+      enum:
+        - INTEREST_RATE
+        - PERFORMANCE
+        - DIVIDEND
+        - PRINCIPAL
+      description: Type of payout
+
+    InterestRatePayout:
+      allOf:
+        - $ref: '#/components/schemas/Payout'
+        - type: object
+          required:
+            - notionalAmount
+            - rateSpecification
+            - currency
+          properties:
+            notionalAmount:
+              $ref: '#/components/schemas/Money'
+            rateSpecification:
+              $ref: '#/components/schemas/RateSpecification'
+            currency:
+              type: string
+              pattern: '^[A-Z]{3}$'
+            dayCountConvention:
+              type: string
+              description: Day count convention for interest calculation
+              enum: [ACT/360, ACT/365, 30/360, ACT/ACT]
+            dayCountFraction:
+              type: string
+              description: Day count fraction method
+              enum: [ACTUAL, CALCULATED]
+            paymentFrequency:
+              type: string
+              description: Frequency of payments
+              enum: [MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL]
+            resetFrequency:
+              type: string
+              description: Frequency of rate resets
+              enum: [DAILY, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL]
+            quantitySchedule:
+              $ref: '#/components/schemas/QuantitySchedule'
+
+    PerformancePayout:
+      allOf:
+        - $ref: '#/components/schemas/Payout'
+        - type: object
+          required:
+            - returnTerms
+          properties:
+            returnTerms:
+              $ref: '#/components/schemas/ReturnTerms'
+
+    DividendPayout:
+      allOf:
+        - $ref: '#/components/schemas/Payout'
+        - type: object
+          required:
+            - dividendAmount
+            - currency
+          properties:
+            dividendAmount:
+              $ref: '#/components/schemas/Money'
+            currency:
+              type: string
+              pattern: '^[A-Z]{3}$'
+            dividendDate:
+              type: string
+              format: date
+              description: Date when dividend is paid
+
+    PrincipalPayout:
+      allOf:
+        - $ref: '#/components/schemas/Payout'
+        - type: object
+          required:
+            - principalAmount
+            - currency
+          properties:
+            principalAmount:
+              $ref: '#/components/schemas/Money'
+            currency:
+              type: string
+              pattern: '^[A-Z]{3}$'
+
+    RateSpecification:
+      type: object
+      required:
+        - rateType
+      properties:
+        rateType:
+          type: string
+          enum:
+            - FIXED
+            - FLOATING
+          description: Type of rate specification
+      discriminator:
+        propertyName: rateType
+        mapping:
+          FIXED: '#/components/schemas/FixedRateSpecification'
+          FLOATING: '#/components/schemas/FloatingRateSpecification'
+
+    FixedRateSpecification:
+      allOf:
+        - $ref: '#/components/schemas/RateSpecification'
+        - type: object
+          required:
+            - rate
+          properties:
+            rate:
+              type: number
+              description: Fixed interest rate
+              minimum: 0
+              maximum: 1
+
+    FloatingRateSpecification:
+      allOf:
+        - $ref: '#/components/schemas/RateSpecification'
+        - type: object
+          required:
+            - floatingRateIndex
+            - spread
+          properties:
+            floatingRateIndex:
+              type: string
+              description: Reference rate index
+              enum: [LIBOR, SOFR, EURIBOR, SONIA]
+            spread:
+              type: number
+              description: Spread over the floating rate
+            resetFrequency:
+              type: string
+              description: Frequency of rate resets
+              enum: [DAILY, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL]
+
+    QuantitySchedule:
+      type: object
+      description: Quantity schedule for varying notional amounts over time
+      properties:
+        unit:
+          $ref: '#/components/schemas/QuantityUnit'
+        quantitySteps:
+          type: array
+          description: List of quantity steps over time
+          items:
+            $ref: '#/components/schemas/DatedQuantity'
+
+    QuantityUnit:
+      type: object
+      required:
+        - currency
+      properties:
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        financialUnit:
+          type: string
+          enum: [SHARES, CONTRACTS, UNITS, CURRENCY]
+
+    DatedQuantity:
+      type: object
+      required:
+        - date
+        - quantity
+      properties:
+        date:
+          type: string
+          format: date
+        quantity:
+          type: number
+          minimum: 0
+          multipleOf: 0.000001
+
+    ReturnTerms:
+      type: object
+      description: Performance return terms
+      properties:
+        priceReturnTerms:
+          $ref: '#/components/schemas/PriceReturnTerms'
+        dividendReturnTerms:
+          $ref: '#/components/schemas/DividendReturnTerms'
+
+    PriceReturnTerms:
+      type: object
+      properties:
+        priceReturn:
+          type: object
+          required:
+            - returnType
+          properties:
+            returnType:
+              type: string
+              enum: [ABSOLUTE, PERCENTAGE]
+            priceReturn:
+              type: number
+              description: Price return value
+
+    DividendReturnTerms:
+      type: object
+      properties:
+        dividendReturn:
+          type: number
+          description: Dividend return value
+
+    Money:
+      type: object
+      required:
+        - value
+        - currency
+      properties:
+        value:
+          type: number
+          description: Monetary value
+          minimum: 0
+          multipleOf: 0.000001
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        unit:
+          type: string
+          description: Unit of measurement
+          enum: [SHARES, CONTRACTS, UNITS, CURRENCY]
+
+    MarketData:
+      type: object
+      description: Market data for calculations
+      properties:
+        rates:
+          type: object
+          description: Interest rates and indices
+          additionalProperties:
+            type: number
+            minimum: 0
+        prices:
+          type: object
+          description: Asset prices and valuations
+          additionalProperties:
+            $ref: '#/components/schemas/PriceData'
+        dividends:
+          type: array
+          description: Dividend information
+          items:
+            $ref: '#/components/schemas/DividendData'
+        volatilities:
+          type: object
+          description: Volatility data for derivatives
+          additionalProperties:
+            type: number
+            minimum: 0
+
+    PriceData:
+      type: object
+      required:
+        - value
+        - currency
+        - date
+      properties:
+        value:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        date:
+          type: string
+          format: date
+
+    DividendData:
+      type: object
+      required:
+        - assetId
+        - amount
+        - currency
+        - exDate
+      properties:
+        assetId:
+          type: string
+        amount:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        exDate:
+          type: string
+          format: date
+        payDate:
+          type: string
+          format: date
+
+    CalculationOptions:
+      type: object
+      description: Calculation options and preferences
+      properties:
+        includeDividends:
+          type: boolean
+          description: Whether to include dividend calculations
+          default: true
+        dayCountConvention:
+          type: string
+          description: Day count convention for calculations
+          enum: [ACT/360, ACT/365, 30/360, ACT/ACT]
+          default: ACT/360
+        currency:
+          type: string
+          description: Base currency for calculations
+          pattern: '^[A-Z]{3}$'
+        precision:
+          type: integer
+          description: Decimal precision for calculations
+          minimum: 2
+          maximum: 16
+          default: 8
+        includeAccruals:
+          type: boolean
+          description: Whether to include accrued amounts
+          default: true
+        includePerformance:
+          type: boolean
+          description: Whether to include performance calculations
+          default: true
+        calculationMethod:
+          type: string
+          description: Calculation method to use
+          enum: [SIMPLE, COMPLEX, CDM_INSPIRED]
+          default: CDM_INSPIRED
+        timezone:
+          type: string
+          description: Timezone for date calculations
+          default: UTC
+        includeDetailedBreakdown:
+          type: boolean
+          description: Whether to include detailed daily/periodic breakdowns
+          default: true
+        breakdownGranularity:
+          type: string
+          description: Granularity level for detailed breakdowns
+          enum: [DAILY, WEEKLY, MONTHLY, QUARTERLY, PERIOD]
+          default: DAILY
+        includeAccrualSchedule:
+          type: boolean
+          description: Whether to include detailed accrual schedules
+          default: true
+        includeCashflowSchedule:
+          type: boolean
+          description: Whether to include detailed cashflow schedules
+          default: true
+
+    CashflowCalculationRequest:
+      type: object
+      required:
+        - contract
+        - calculationDate
+      properties:
+        contract:
+          $ref: '#/components/schemas/Contract'
+        calculationDate:
+          type: string
+          format: date
+          description: Date for which to calculate cashflow
+        calculationPeriod:
+          type: object
+          description: Optional calculation period specification
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            periodType:
+              type: string
+              enum: [FULL_PERIOD, PARTIAL_PERIOD, ACCRUAL_PERIOD]
+        marketData:
+          $ref: '#/components/schemas/MarketData'
+        options:
+          $ref: '#/components/schemas/CalculationOptions'
+
+    BatchCashflowCalculationRequest:
+      type: object
+      required:
+        - contracts
+        - calculationDate
+      properties:
+        contracts:
+          type: array
+          description: List of contracts to calculate
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: '#/components/schemas/Contract'
+        calculationDate:
+          type: string
+          format: date
+          description: Date for which to calculate cashflow
+        marketData:
+          $ref: '#/components/schemas/MarketData'
+        options:
+          $ref: '#/components/schemas/CalculationOptions'
+
+    PayoutCashflowResult:
+      type: object
+      required:
+        - payoutId
+        - payoutType
+        - cashflowAmount
+        - calculationStatus
+      properties:
+        payoutId:
+          type: string
+        payoutType:
+          $ref: '#/components/schemas/PayoutType'
+        cashflowAmount:
+          $ref: '#/components/schemas/Money'
+        calculationStatus:
+          type: string
+          enum: [SUCCESS, ERROR, WARNING]
+        errorMessage:
+          type: string
+        calculationDetails:
+          type: object
+          description: Detailed calculation breakdown
+          additionalProperties: true
+
+    CashflowCalculationResponse:
+      type: object
+      required:
+        - contractId
+        - calculationDate
+        - totalCashflow
+        - payoutResults
+        - calculationStatus
+        - calculatedAt
+        - cashflowSummary
+      properties:
+        contractId:
+          type: string
+          description: Contract ID
+          example: CONTRACT_001
+        calculationDate:
+          type: string
+          format: date
+          description: Calculation date
+          example: '2024-01-15'
+        totalCashflow:
+          $ref: '#/components/schemas/Money'
+        payoutResults:
+          type: array
+          description: Results for each payout
+          items:
+            $ref: '#/components/schemas/PayoutCashflowResult'
+        calculationStatus:
+          type: string
+          description: Overall calculation status
+          enum: [SUCCESS, ERROR, WARNING]
+          example: SUCCESS
+        errorMessage:
+          type: string
+          description: Error message if calculation failed
+        calculatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when calculation was performed
+        processingTimeMs:
+          type: integer
+          description: Processing time in milliseconds
+          minimum: 0
+        cashflowSummary:
+          $ref: '#/components/schemas/CashflowSummary'
+
+    BatchCashflowCalculationResponse:
+      type: object
+      required:
+        - batchId
+        - totalContracts
+        - results
+        - batchStatus
+        - calculatedAt
+      properties:
+        batchId:
+          type: string
+          description: Unique identifier for this batch calculation
+        totalContracts:
+          type: integer
+          description: Total number of contracts processed
+          minimum: 0
+        successfulCalculations:
+          type: integer
+          description: Number of successful calculations
+          minimum: 0
+        failedCalculations:
+          type: integer
+          description: Number of failed calculations
+          minimum: 0
+        results:
+          type: array
+          description: Results for each contract
+          items:
+            $ref: '#/components/schemas/CashflowCalculationResponse'
+        batchStatus:
+          type: string
+          description: Overall batch status
+          enum: [COMPLETED, PARTIAL_SUCCESS, FAILED]
+        errorMessage:
+          type: string
+          description: Error message if batch calculation failed
+        calculatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when batch calculation was completed
+        processingTimeMs:
+          type: integer
+          description: Total processing time in milliseconds
+          minimum: 0
+
+    ContractResponse:
+      type: object
+      required:
+        - contract
+        - metadata
+      properties:
+        contract:
+          $ref: '#/components/schemas/Contract'
+        metadata:
+          type: object
+          properties:
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            version:
+              type: string
+
+    ContractListResponse:
+      type: object
+      required:
+        - contracts
+        - totalCount
+        - limit
+        - offset
+      properties:
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contract'
+        totalCount:
+          type: integer
+          description: Total number of contracts available
+          minimum: 0
+        limit:
+          type: integer
+          description: Maximum number of contracts returned
+          minimum: 1
+        offset:
+          type: integer
+          description: Number of contracts skipped
+          minimum: 0
+
+    MarketDataResponse:
+      type: object
+      required:
+        - marketData
+        - dataDate
+        - retrievedAt
+      properties:
+        marketData:
+          $ref: '#/components/schemas/MarketData'
+        dataDate:
+          type: string
+          format: date
+          description: Date for which market data is provided
+        retrievedAt:
+          type: string
+          format: date-time
+          description: Timestamp when data was retrieved
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, DEGRADED]
+          description: Service health status
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of health check
+        version:
+          type: string
+          description: Service version
+        uptime:
+          type: string
+          description: Service uptime
+        dependencies:
+          type: object
+          description: Status of service dependencies
+          additionalProperties:
+            type: string
+              enum: [UP, DOWN, DEGRADED]
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid contract data provided
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when error occurred
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+        requestId:
+          type: string
+          description: Unique identifier for this request
+          example: req_123456789
+
+    CashflowSummary:
+      type: object
+      description: Consolidated cashflow summary with detailed breakdowns
+      required:
+        - totalCashflow
+        - summaryByType
+        - summaryByPayout
+        - calculationPeriod
+      properties:
+        totalCashflow:
+          $ref: '#/components/schemas/Money'
+        summaryByType:
+          type: object
+          description: Cashflow summary grouped by type
+          properties:
+            interestAmount:
+              $ref: '#/components/schemas/Money'
+            dividendAmount:
+              $ref: '#/components/schemas/Money'
+            performanceAmount:
+              $ref: '#/components/schemas/Money'
+            principalAmount:
+              $ref: '#/components/schemas/Money'
+        summaryByPayout:
+          type: array
+          description: Cashflow summary for each payout
+          items:
+            type: object
+            required:
+              - payoutId
+              - payoutType
+              - totalAmount
+            properties:
+              payoutId:
+                type: string
+              payoutType:
+                $ref: '#/components/schemas/PayoutType'
+              totalAmount:
+                $ref: '#/components/schemas/Money'
+              breakdown:
+                type: object
+                properties:
+                  accruedAmount:
+                    $ref: '#/components/schemas/Money'
+                  paidAmount:
+                    $ref: '#/components/schemas/Money'
+                  pendingAmount:
+                    $ref: '#/components/schemas/Money'
+        calculationPeriod:
+          type: object
+          description: Period covered by the calculation
+          required:
+            - startDate
+            - endDate
+            - totalDays
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            totalDays:
+              type: integer
+              minimum: 1
+            businessDays:
+              type: integer
+              minimum: 0
+            accrualDays:
+              type: integer
+              minimum: 0
+        detailedBreakdown:
+          type: object
+          description: Detailed breakdown of cashflows
+          properties:
+            dailyBreakdown:
+              type: array
+              description: Daily cashflow breakdown
+              items:
+                $ref: '#/components/schemas/DailyCashflowEntry'
+            accrualSchedule:
+              type: array
+              description: Accrual schedule with periodic amounts
+              items:
+                $ref: '#/components/schemas/AccrualEntry'
+            cashflowSchedule:
+              type: array
+              description: Scheduled cashflow payments
+              items:
+                $ref: '#/components/schemas/CashflowScheduleEntry'
+            interestBreakdown:
+              type: array
+              description: Detailed interest calculations
+              items:
+                $ref: '#/components/schemas/InterestBreakdownEntry'
+
+    DailyCashflowEntry:
+      type: object
+      description: Daily cashflow entry
+      required:
+        - date
+        - totalAmount
+      properties:
+        date:
+          type: string
+          format: date
+        totalAmount:
+          $ref: '#/components/schemas/Money'
+        interestAmount:
+          $ref: '#/components/schemas/Money'
+        dividendAmount:
+          $ref: '#/components/schemas/Money'
+        performanceAmount:
+          $ref: '#/components/schemas/Money'
+        accruedAmount:
+          $ref: '#/components/schemas/Money'
+        cumulativeAmount:
+          $ref: '#/components/schemas/Money'
+
+    AccrualEntry:
+      type: object
+      description: Accrual schedule entry
+      required:
+        - payoutId
+        - startDate
+        - endDate
+        - accruedAmount
+      properties:
+        payoutId:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        accruedAmount:
+          $ref: '#/components/schemas/Money'
+        notionalAmount:
+          $ref: '#/components/schemas/Money'
+        rate:
+          type: number
+        dayCount:
+          type: integer
+          minimum: 1
+        dayCountFraction:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    CashflowScheduleEntry:
+      type: object
+      description: Scheduled cashflow payment entry
+      required:
+        - payoutId
+        - paymentDate
+        - amount
+      properties:
+        payoutId:
+          type: string
+        paymentDate:
+          type: string
+          format: date
+        amount:
+          $ref: '#/components/schemas/Money'
+        status:
+          type: string
+          enum: [SCHEDULED, PAID, OVERDUE, CANCELLED]
+        paymentType:
+          type: string
+          enum: [INTEREST, DIVIDEND, PRINCIPAL, PERFORMANCE]
+
+    InterestBreakdownEntry:
+      type: object
+      description: Detailed interest calculation entry
+      required:
+        - payoutId
+        - periodStart
+        - periodEnd
+        - interestAmount
+      properties:
+        payoutId:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        interestAmount:
+          $ref: '#/components/schemas/Money'
+        notionalAmount:
+          $ref: '#/components/schemas/Money'
+        rate:
+          type: number
+        dayCount:
+          type: integer
+          minimum: 1
+        dayCountFraction:
+          type: number
+          minimum: 0
+          maximum: 1
+        calculationMethod:
+          type: string
+        resetDate:
+          type: string
+          format: date
+        resetRate:
+          type: number
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
