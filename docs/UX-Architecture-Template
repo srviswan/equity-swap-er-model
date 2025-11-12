@@ -1,0 +1,259 @@
+<ac:layout>
+  <ac:layout-section ac:type="two_equal">
+    <ac:layout-cell>
+      <h1>UX Architecture – ${Workflow Name}</h1>
+      <p><strong>Last Updated:</strong> ${Date} | <strong>Owner:</strong> ${Name}</p>
+      <ac:structured-macro ac:name="panel">
+        <ac:parameter ac:name="title">Purpose</ac:parameter>
+        <ac:rich-text-body>
+          <p>${Short overview of what the workflow covers and why this documentation exists}</p>
+        </ac:rich-text-body>
+      </ac:structured-macro>
+    </ac:layout-cell>
+    <ac:layout-cell>
+      <ac:structured-macro ac:name="panel">
+        <ac:parameter ac:name="title">Scope & Metrics</ac:parameter>
+        <ac:rich-text-body>
+          <ul>
+            <li><strong>Scope:</strong> ${Systems, channels, journey boundaries}</li>
+            <li><strong>Primary KPIs:</strong> ${Latency targets, completion times, quality metrics}</li>
+            <li><strong>Dependencies:</strong> ${Any related initiatives}</li>
+          </ul>
+        </ac:rich-text-body>
+      </ac:structured-macro>
+    </ac:layout-cell>
+  </ac:layout-section>
+</ac:layout>
+
+<h2>1. Personas & Goals</h2>
+<table>
+  <tbody>
+    <tr>
+      <th>Persona</th>
+      <th>Responsibilities</th>
+      <th>Key Goals</th>
+      <th>Pain Points</th>
+      <th>Access Level / Tools</th>
+    </tr>
+    <tr>
+      <td>Client</td>
+      <td>${e.g., Monitor positions, review lifecycle events}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>Sales</td>
+      <td>${e.g., Capture trades, liaise with clients}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>Client Services</td>
+      <td>${e.g., Handle client inquiries, monitor exceptions}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>Trader</td>
+      <td>${e.g., Manage positions, hedge exposure}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>Trading Assistant</td>
+      <td>${e.g., Support trade capture, data validation}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>Middle Office / Operations / Regulatory Operations</td>
+      <td>${e.g., Lifecycle processing, compliance reporting}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+    <tr>
+      <td>IT Operations Team</td>
+      <td>${e.g., Platform health, incident response}</td>
+      <td>${Desired outcomes}</td>
+      <td>${Pain points}</td>
+      <td>${Access}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Workflow Summary</h2>
+<p>${Narrative describing the end-to-end journey for this workflow}</p>
+<p><strong>Entry Criteria:</strong> ${Prerequisites}</p>
+<p><strong>Exit Criteria:</strong> ${Completion conditions}</p>
+<ac:structured-macro ac:name="expand">
+  <ac:parameter ac:name="title">Swimlane Diagram</ac:parameter>
+  <ac:rich-text-body>
+    <p>${Embed diagram link or use Draw.io macro}</p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<h2>3. Information Architecture</h2>
+<ul>
+  <li><strong>Domain Model:</strong> ${Link to CDM-based model diagram}</li>
+  <li><strong>Content Hierarchy:</strong> ${IA outline covering screens/modules}</li>
+  <li><strong>Navigation Map:</strong> ${Diagram or bullet list}</li>
+</ul>
+
+<h2>4. Interaction Design</h2>
+<ac:structured-macro ac:name="section">
+  <ac:rich-text-body>
+    <p><strong>Primary Task Flows</strong></p>
+    <ul>
+      <li>${Trade booking flow summary with link to visual}</li>
+      <li>${Lifecycle event approval flow}</li>
+      <li>${Exception handling flow}</li>
+    </ul>
+  </ac:rich-text-body>
+</ac:structured-macro>
+<ac:structured-macro ac:name="section">
+  <ac:rich-text-body>
+    <p><strong>State Management Rules</strong></p>
+    <ul>
+      <li>Loading states: ${Guidelines}</li>
+      <li>Error states: ${Messages, recovery actions}</li>
+      <li>Real-time updates: ${Refresh cadence, notifications}</li>
+      <li>Offline / latency handling: ${Fallback behavior}</li>
+    </ul>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<h2>5. UX Patterns & Components</h2>
+<table>
+  <tbody>
+    <tr>
+      <th>Component</th>
+      <th>Usage</th>
+      <th>Notes</th>
+      <th>Design Spec</th>
+    </tr>
+    <tr>
+      <td>Trade Capture Form</td>
+      <td>${Where used}</td>
+      <td>${Validation rules}</td>
+      <td>${Link to Figma}</td>
+    </tr>
+    <tr>
+      <td>Lifecycle Timeline</td>
+      <td>${Where used}</td>
+      <td>${Interaction behavior}</td>
+      <td>${Link to spec}</td>
+    </tr>
+    <tr>
+      <td>Exposure Dashboard</td>
+      <td>${Where used}</td>
+      <td>${Chart types}</td>
+      <td>${Link to spec}</td>
+    </tr>
+    <tr>
+      <td>Alerts & Notifications</td>
+      <td>${Where used}</td>
+      <td>${Priority, escalations}</td>
+      <td>${Link to spec}</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Visual Language:</strong> ${Typography, color tokens, iconography references}</p>
+<p><strong>Accessibility Checklist:</strong> ${WCAG checkpoints, keyboard focus, contrast ratios}</p>
+
+<h2>6. Data & Visualization Requirements</h2>
+<ul>
+  <li><strong>Inputs:</strong> ${Fields required, source systems}</li>
+  <li><strong>Outputs:</strong> ${Calculated values, audit trails}</li>
+  <li><strong>Refresh Strategy:</strong> ${REST vs. event vs. gRPC vs. actor model usage}</li>
+  <li><strong>Visualization Specs:</strong> ${Link to chart/timeline definitions}</li>
+</ul>
+
+<h2>7. Integration Touchpoints</h2>
+<table>
+  <tbody>
+    <tr>
+      <th>Service / API</th>
+      <th>Purpose</th>
+      <th>Interaction Pattern</th>
+      <th>Error Handling</th>
+      <th>Notes</th>
+    </tr>
+    <tr>
+      <td>Trade Capture API</td>
+      <td>${Description}</td>
+      <td>REST</td>
+      <td>${UX response to failure}</td>
+      <td>${Links}</td>
+    </tr>
+    <tr>
+      <td>Lifecycle Event Stream</td>
+      <td>${Description}</td>
+      <td>Event Streaming</td>
+      <td>${Fallback behavior}</td>
+      <td>${Links}</td>
+    </tr>
+    <tr>
+      <td>Intraday Pricing gRPC</td>
+      <td>${Description}</td>
+      <td>gRPC</td>
+      <td>${Timeout behavior}</td>
+      <td>${Links}</td>
+    </tr>
+    <tr>
+      <td>Actor Model Pipeline</td>
+      <td>${Description}</td>
+      <td>Actor</td>
+      <td>${Escalation rules}</td>
+      <td>${Links}</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Security & Compliance Considerations:</strong> ${Authentication, authorization, PII handling}</p>
+
+<h2>8. Prototyping & Validation</h2>
+<ul>
+  <li><strong>Prototype URLs:</strong> ${Figma/InVision links}</li>
+  <li><strong>Usability Research Plan:</strong> ${Objectives, participant mix, scenarios}</li>
+  <li><strong>Key Findings:</strong> ${Summary, decisions, open issues}</li>
+</ul>
+
+<h2>9. Implementation Guidance</h2>
+<ul>
+  <li><strong>Acceptance Criteria:</strong> ${UX-specific story criteria}</li>
+  <li><strong>Performance Budget:</strong> ${e.g., <500ms P95 screen load, <100ms real-time updates}</li>
+  <li><strong>Design QA Checklist:</strong> ${Spacing, responsiveness, state coverage, accessibility}</li>
+</ul>
+
+<h2>10. Governance & Maintenance</h2>
+<ul>
+  <li><strong>Change Control Process:</strong> ${How updates are proposed, reviewed, approved}</li>
+  <li><strong>Known UX Debt:</strong> ${Items with owner & target date}</li>
+  <li><strong>Related Pages:</strong> ${Links to design system, analytics dashboards, product vision}</li>
+</ul>
+
+<h2>Appendix</h2>
+<ul>
+  <li><strong>Glossary:</strong> ${Key terms and abbreviations}</li>
+  <li><strong>Artifact Library:</strong> ${Links to research decks, recordings, spreadsheets}</li>
+  <li><strong>Revision History:</strong></li>
+</ul>
+<table>
+  <tbody>
+    <tr>
+      <th>Date</th>
+      <th>Author</th>
+      <th>Change Summary</th>
+    </tr>
+    <tr>
+      <td>${yyyy-mm-dd}</td>
+      <td>${Name}</td>
+      <td>${Summary}</td>
+    </tr>
+  </tbody>
+</table>
