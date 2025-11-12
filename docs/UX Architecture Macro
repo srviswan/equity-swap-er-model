@@ -1,0 +1,97 @@
+h1. UX Architecture – ${Workflow Name}
+
+_Last Updated: ${Date} | Owner: ${Name}_
+
+{panel:title=Purpose}
+${Short overview of what the workflow covers and why this documentation exists}
+{panel}
+
+{panel:title=Scope & Metrics}
+* *Scope:* ${Systems, channels, journey boundaries}
+* *Primary KPIs:* ${Latency targets, completion times, quality metrics}
+* *Dependencies:* ${Any related initiatives}
+{panel}
+
+h2. Personas & Goals
+|| Persona || Responsibilities || Key Goals || Pain Points || Access Level / Tools ||
+| Client | ${e.g., Monitor positions, review lifecycle events} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| Sales | ${e.g., Capture trades, liaise with clients} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| Client Services | ${e.g., Handle client inquiries, monitor exceptions} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| Trader | ${e.g., Manage positions, hedge exposure} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| Trading Assistant | ${e.g., Support trade capture, data validation} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| Middle Office / Operations / Regulatory Operations | ${e.g., Lifecycle processing, compliance reporting} | ${Desired outcomes} | ${Pain points} | ${Access} |
+| IT Operations Team | ${e.g., Platform health, incident response} | ${Desired outcomes} | ${Pain points} | ${Access} |
+
+h2. Workflow Summary
+${Narrative describing the end-to-end journey for this workflow}
+
+* *Entry Criteria:* ${Prerequisites}
+* *Exit Criteria:* ${Completion conditions}
+
+{expand:title=Swimlane Diagram}
+${Embed diagram link or use Draw.io macro}
+{expand}
+
+h2. Information Architecture
+* *Domain Model:* ${Link to CDM-based model diagram}
+* *Content Hierarchy:* ${IA outline covering screens/modules}
+* *Navigation Map:* ${Diagram or bullet list}
+
+h2. Interaction Design
+* *Primary Task Flows*
+** ${Trade booking flow summary with link to visual}
+** ${Lifecycle event approval flow}
+** ${Exception handling flow}
+
+* *State Management Rules*
+** Loading states: ${Guidelines}
+** Error states: ${Messages, recovery actions}
+** Real-time updates: ${Refresh cadence, notifications}
+** Offline / latency handling: ${Fallback behavior}
+
+h2. UX Patterns & Components
+|| Component || Usage || Notes || Design Spec ||
+| Trade Capture Form | ${Where used} | ${Validation rules} | ${Link to Figma} |
+| Lifecycle Timeline | ${Where used} | ${Interaction behavior} | ${Link to spec} |
+| Exposure Dashboard | ${Where used} | ${Chart types} | ${Link to spec} |
+| Alerts & Notifications | ${Where used} | ${Priority, escalations} | ${Link to spec} |
+
+* *Visual Language:* ${Typography, color tokens, iconography references}
+* *Accessibility Checklist:* ${WCAG checkpoints, keyboard focus, contrast ratios}
+
+h2. Data & Visualization Requirements
+* *Inputs:* ${Fields required, source systems}
+* *Outputs:* ${Calculated values, audit trails}
+* *Refresh Strategy:* ${REST vs. event vs. gRPC vs. actor model usage}
+* *Visualization Specs:* ${Link to chart/timeline definitions}
+
+h2. Integration Touchpoints
+|| Service / API || Purpose || Interaction Pattern || Error Handling || Notes ||
+| Trade Capture API | ${Description} | REST | ${UX response to failure} | ${Links} |
+| Lifecycle Event Stream | ${Description} | Event Streaming | ${Fallback behavior} | ${Links} |
+| Intraday Pricing gRPC | ${Description} | gRPC | ${Timeout behavior} | ${Links} |
+| Actor Model Pipeline | ${Description} | Actor | ${Escalation rules} | ${Links} |
+
+* *Security & Compliance Considerations:* ${Authentication, authorization, PII handling}
+
+h2. Prototyping & Validation
+* *Prototype URLs:* ${Figma/InVision links}
+* *Usability Research Plan:* ${Objectives, participant mix, scenarios}
+* *Key Findings:* ${Summary, decisions, open issues}
+
+h2. Implementation Guidance
+* *Acceptance Criteria:* ${UX-specific story criteria}
+* *Performance Budget:* ${e.g., <500ms P95 screen load, <100ms real-time updates}
+* *Design QA Checklist:* ${Spacing, responsiveness, state coverage, accessibility}
+
+h2. Governance & Maintenance
+* *Change Control Process:* ${How updates are proposed, reviewed, approved}
+* *Known UX Debt:* ${Items with owner & target date}
+* *Related Pages:* ${Links to design system, analytics dashboards, product vision}
+
+h2. Appendix
+* *Glossary:* ${Key terms and abbreviations}
+* *Artifact Library:* ${Links to research decks, recordings, spreadsheets}
+* *Revision History:*
+|| Date || Author || Change Summary ||
+| ${yyyy-mm-dd} | ${Name} | ${Summary} |
